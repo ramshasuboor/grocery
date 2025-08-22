@@ -1,0 +1,8 @@
+#example {
+    width: 100%;
+}
+
+#example th,
+#example td {
+    text-align: left;
+}

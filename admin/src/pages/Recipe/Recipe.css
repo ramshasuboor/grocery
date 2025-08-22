@@ -1,0 +1,25 @@
+.recipe-row {
+  display: flex;
+  align-items: flex-end;   /* inputs and button bottom aligned */
+  gap: 20px;               /* space between fields */
+  margin-top: 20px;
+}
+
+.recipe-field {
+  display: flex;
+  flex-direction: column; /* label upar, input niche */
+}
+
+.recipe-field label{
+    font-weight: 700;
+}
+
+.recipe .form-control {
+  min-width: 180px;       /* thoda wide dikhne ke liye */
+}
+
+.recipe button {
+  padding: 6px 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}

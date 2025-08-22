@@ -1,0 +1,23 @@
+.reverse-calculation label {
+    font-weight: 700;
+}
+
+.reverse-calculation input,
+.reverse-calculation select {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+    font-weight: 400;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox ke liye */
+input[type=number] {
+  -moz-appearance: textfield;
+}

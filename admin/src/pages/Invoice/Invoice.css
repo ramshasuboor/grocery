@@ -1,0 +1,146 @@
+.add-new-sale label {
+    font-weight: 700;
+}
+
+.add-new-sale input,
+.add-new-sale select {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+    font-weight: 400;
+}
+
+.product-table th {
+    background-color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    border-top: 2px solid green;
+    border-bottom: 2px solid green;
+    padding: 8px 0 8px 0;
+    text-align: center;
+}
+
+.contact-input {
+    margin-left: 80px;
+    font-weight: 400;
+}
+
+.contact-field {
+    max-width: 200px;
+    /* margin: -8px; */
+}
+
+.product-table {
+    width: 100%;
+    table-layout: fixed;
+    /* columns ki width fixed ho jayegi */
+    border-collapse: collapse;
+}
+
+
+.product-table td {
+    padding: 10px 5px 10px 5px;
+    margin-top: 5px;
+    border-bottom: 1px solid #aaa;
+}
+
+.product-table .select {
+    max-width: 240px;
+    font-weight: 400;
+}
+
+
+.product-table .input {
+    max-width: 115px;
+    margin-left: 2rem;
+    font-weight: 400;
+
+}
+
+
+.product-table td:last-child {
+    text-align: center;
+}
+
+.product-table .add-btn {
+    background-color: green;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+.product-table .delete-btn {
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 16px;
+    /* margin: 5px ; */
+}
+
+.product-table .form-control {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+}
+
+.total-item {
+    max-width: 150px;
+}
+
+.total-first-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 30px;
+}
+
+.total-first-row h6 {
+    font-weight: 700;
+}
+
+.total-first-row input {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+    padding: 5px;
+    width: 80%;
+}
+
+.total-second-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 30px;
+
+}
+
+.total-second-row h6 {
+    font-weight: 700;
+}
+
+.total-second-row input {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+    padding: 5px;
+    width: 80%;
+}
+
+/* Sirf paid amount wale input ke liye spinner hatana */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield; /* Firefox ke liye */
+}
+
