@@ -18,7 +18,8 @@ import Invoice from "./pages/Invoice/Invoice";
 import PrintInvoice from "./pages/Invoice/PrintInvoice";
 import Recipe from "./pages/Recipe/Recipe"
 import ReverseCalculation from "./pages/ReverseCalculation.jsx/ReverseCalculation";
-import Invoices from "./pages/Invoices/Invoices";
+import Invoices from "./pages/Invoices/Invoices"
+import EditInvoice from "./pages/Invoice/EditInvoice";
 
 function App() {
   return (
@@ -142,6 +143,14 @@ function App() {
             element={
               <Layout>
                 <Invoices />
+              </Layout>
+            }
+          />
+          <Route
+            path="/edit-invoice/:id" 
+            element={
+              <Layout>
+                <EditInvoice />
               </Layout>
             }
           />

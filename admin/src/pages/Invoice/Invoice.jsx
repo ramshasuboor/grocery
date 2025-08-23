@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import "./Invoice.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -39,8 +40,8 @@ const Invoice = () => {
     const [paidAmount, setPaidAmount] = useState("");
     const [balanceAmount, setBalanceAmount] = useState(0);
 
-    const [invoiceNo, setInvoiceNo] = useState(0);
-    const [counter, setCounter] = useState(0); // counter store karega
+    // const [invoiceNo, setInvoiceNo] = useState(0);
+    // const [counter, setCounter] = useState(0); // counter store karega
 
     const handlePaidChange = (e) => {
         const value = e.target.value;
@@ -90,25 +91,9 @@ const Invoice = () => {
 
         if (customerId === "cash") {
             setSelectedCustomer("cash");
-
-            // invoice no generate karo
-            setCounter((prev) => {
-                const newNo = prev + 1;
-                setInvoiceNo(newNo);
-                return newNo;
-            });
-
         } else {
             const customer = customers.find((c) => c._id === customerId);
             setSelectedCustomer(customer || "");
-
-            if (customer) {
-                setCounter((prev) => {
-                    const newNo = prev + 1;
-                    setInvoiceNo(newNo);
-                    return newNo;
-                });
-            }
         }
     };
 
@@ -224,31 +209,31 @@ const Invoice = () => {
     // };
 
     const handleKeyDown = (e, nextRef, index, prevRef) => {
-    if (e.key === "Enter") {
-        e.preventDefault();
+        if (e.key === "Enter") {
+            e.preventDefault();
 
-        // ✅ Shift + Enter → back focus
-        if (e.shiftKey) {
-            if (Array.isArray(prevRef?.current)) {
-                if (prevRef.current[index]) {
-                    prevRef.current[index].focus();
+            // ✅ Shift + Enter → back focus
+            if (e.shiftKey) {
+                if (Array.isArray(prevRef?.current)) {
+                    if (prevRef.current[index]) {
+                        prevRef.current[index].focus();
+                    }
+                } else if (prevRef?.current) {
+                    prevRef.current.focus();
                 }
-            } else if (prevRef?.current) {
-                prevRef.current.focus();
+                return;
             }
-            return;
-        }
 
-        // ✅ Normal Enter → next focus
-        if (Array.isArray(nextRef?.current)) {
-            if (nextRef.current[index]) {
-                nextRef.current[index].focus();
+            // ✅ Normal Enter → next focus
+            if (Array.isArray(nextRef?.current)) {
+                if (nextRef.current[index]) {
+                    nextRef.current[index].focus();
+                }
+            } else if (nextRef?.current) {
+                nextRef.current.focus();
             }
-        } else if (nextRef?.current) {
-            nextRef.current.focus();
         }
-    }
-};
+    };
 
 
     useEffect(() => {
@@ -284,6 +269,73 @@ const Invoice = () => {
         }, 0);
     };
 
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        try {
+            const invoiceData = {
+                customer: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer,
+                //   invoiceNo: invoiceNo,
+                rows: rows,
+                totals: totals,
+                paidAmount: paidAmount,
+                balanceAmount: balanceAmount,
+                date: new Date().toLocaleDateString(),
+            };
+
+            const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(invoiceData),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Invoice saved successfully!");
+                // navigate("/invoices"); // yahan tumhare list page ka route dalna
+            } else {
+                alert("Failed to save invoice: " + result.error);
+            }
+        } catch (err) {
+            console.error("Error saving invoice:", err);
+            alert("Something went wrong!");
+        }
+    };
+
+
+    useEffect(() => {
+        const fetchInvoiceNo = async () => {
+            try {
+                const res = await fetch("http://localhost:4000/api/v1/invoice/nextNo");
+                const data = await res.json();
+                if (data.success) {
+                    setInvoiceNo(data.nextInvoiceNo);
+                }
+            } catch (err) {
+                console.error("Error fetching invoice no:", err);
+            }
+        };
+        fetchInvoiceNo();
+    }, []);
+
+
+    const [invoiceNo, setInvoiceNo] = useState("");
+
+    // Backend se next invoice no fetch karna
+    useEffect(() => {
+        const fetchNextInvoiceNo = async () => {
+            try {
+                const res = await axios.get("http://localhost:5000/api/invoices/nextNo");
+                if (res.data.success) {
+                    setInvoiceNo(res.data.nextInvoiceNo); // input me set
+                }
+            } catch (err) {
+                console.error("Error fetching invoice no:", err);
+            }
+        };
+
+        fetchNextInvoiceNo();
+    }, []);
 
     return (
         <>
@@ -345,7 +397,7 @@ const Invoice = () => {
                             name="paymentType"
                             className="form-control"
                             ref={paymentTypeRef}
-                            onKeyDown={(e) => handleKeyDown(e, productRef, 0,customerRef)}
+                            onKeyDown={(e) => handleKeyDown(e, productRef, 0, customerRef)}
                             required
                         >
                             <option value="Credit Payment">Credit Payment</option>
@@ -407,7 +459,7 @@ const Invoice = () => {
                                     value={row.product}
                                     className="form-control select"
                                     ref={(el) => (productRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, qtyRef, index,paymentTypeRef)}
+                                    onKeyDown={(e) => handleKeyDown(e, qtyRef, index, paymentTypeRef)}
                                     required
                                 >
                                     <option value="">Select Products:</option>
@@ -442,7 +494,7 @@ const Invoice = () => {
                                     placeholder="Quantity"
                                     data-index={index}
                                     ref={(el) => (qtyRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, discountRef, index,productRef)}
+                                    onKeyDown={(e) => handleKeyDown(e, discountRef, index, productRef)}
                                     required
                                 />
                             </td>
@@ -469,7 +521,7 @@ const Invoice = () => {
                                     placeholder="Discount"
                                     data-index={index}
                                     ref={(el) => (discountRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, addBtnRef, index,qtyRef)}
+                                    onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)}
                                     required
                                 />
                             </td>
@@ -490,14 +542,14 @@ const Invoice = () => {
                                         type="button"
                                         className='add-btn'
                                         ref={(el) => (addBtnRef.current[index] = el)}
-                                        onKeyDown={(e) => handleKeyDown(e, deleteBtnRef, index,discountRef)}
+                                        onKeyDown={(e) => handleKeyDown(e, deleteBtnRef, index, discountRef)}
                                         onClick={handleAddRow}>
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
                                     <button
                                         type="button" className='delete-btn'
                                         ref={(el) => (deleteBtnRef.current[index] = el)}
-                                        onKeyDown={(e) => handleKeyDown(e, paidRef,addBtnRef)}
+                                        onKeyDown={(e) => handleKeyDown(e, paidRef, addBtnRef)}
                                         onClick={() => handleDeleteRow(index)}>
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
@@ -531,8 +583,8 @@ const Invoice = () => {
                 <div className="total-second-row mt-3">
                     <div className="total-item">
                         <h6>Amount Paid:</h6>
-                        <input type="number" className='no-spinner' ref={paidRef} 
-                         onKeyDown={(e) => handleKeyDown(e, customerRef,deleteBtnRef)}step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
+                        <input type="number" className='no-spinner' ref={paidRef}
+                            onKeyDown={(e) => handleKeyDown(e, customerRef, deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
                     </div>
                     <div className="total-item">
                         <h6>Balance Amount:</h6>
@@ -541,7 +593,7 @@ const Invoice = () => {
                 </div>
             </div>
             <div className="button d-flex flex-column mt-5 mb-5">
-                <button className='btn btn-success mb-4 align-self-start'>Save</button>
+                <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button>
                 <button className='btn btn-success align-self-start 
                 'onClick={handlePrintClick} type='button'>Print Invoice</button>
             </div>

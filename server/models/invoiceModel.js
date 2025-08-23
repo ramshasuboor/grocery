@@ -22,7 +22,11 @@ const invoiceSchema = new mongoose.Schema({
   },
   paidAmount: Number,
   balanceAmount: Number,
-  invoiceNo: Number,
+invoiceNo: {
+      type: Number,
+      required: true,
+      unique: true, // har invoice ek hi baar ho
+    },
   date: String,
 }, { timestamps: true });
 
