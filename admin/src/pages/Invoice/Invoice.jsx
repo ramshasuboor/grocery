@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+// import axios from 'axios';
 import "./Invoice.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 const Invoice = () => {
     const navigate = useNavigate();
+    const [invoiceNo, setInvoiceNo] = useState("");
     const [isRowAdded, setIsRowAdded] = useState(false);
     const [rows, setRows] = useState([
         { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" }
@@ -274,12 +275,19 @@ const Invoice = () => {
 
         try {
             const invoiceData = {
-                customer: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer,
-                //   invoiceNo: invoiceNo,
-                rows: rows,
+                customer: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer._id,
+                // invoiceNo: invoiceNo,
+                rows: rows.map(r => ({
+                    product: r.product, // sirf product id
+                    quantity: r.quantity,
+                    mrp: r.mrp,
+                    discount: r.discount,
+                    total: r.total,
+                })),
                 totals: totals,
                 paidAmount: paidAmount,
                 balanceAmount: balanceAmount,
+                invoiceInfo: invoiceInfo, 
                 date: new Date().toLocaleDateString(),
             };
 
@@ -302,40 +310,39 @@ const Invoice = () => {
         }
     };
 
+// useEffect(() => {
+//     const fetchInvoiceNo = async () => {
+//         try {
+//             const res = await fetch("http://localhost:4000/api/v1/invoice/nextNo");
+//             const data = await res.json();
+//             console.log(data, "invioce")
+//             if (data.success) {
+//                 setInvoiceNo((data.nextInvoiceNo)); // ensure backend JSON is { success: true, nextInvoiceNo: ... }
+//             } else {
+//                 console.error("Failed to get next invoice no:", data.error);
+//             }
+//         } catch (err) {
+//             console.error("Error fetching invoice no:", err);
+//         }
+//     };
+//     fetchInvoiceNo();
+// }, []);
 
-    useEffect(() => {
-        const fetchInvoiceNo = async () => {
-            try {
-                const res = await fetch("http://localhost:4000/api/v1/invoice/nextNo");
-                const data = await res.json();
-                if (data.success) {
-                    setInvoiceNo(data.nextInvoiceNo);
-                }
-            } catch (err) {
-                console.error("Error fetching invoice no:", err);
-            }
-        };
-        fetchInvoiceNo();
-    }, []);
 
 
-    const [invoiceNo, setInvoiceNo] = useState("");
+const [invoiceInfo, setInvoiceInfo] = useState("");
 
-    // Backend se next invoice no fetch karna
-    useEffect(() => {
-        const fetchNextInvoiceNo = async () => {
-            try {
-                const res = await axios.get("http://localhost:5000/api/invoices/nextNo");
-                if (res.data.success) {
-                    setInvoiceNo(res.data.nextInvoiceNo); // input me set
-                }
-            } catch (err) {
-                console.error("Error fetching invoice no:", err);
-            }
-        };
+useEffect(() => {
+    // Page load pe automatic generate karenge
+    const now = new Date();
+    
+    // Generate invoice number based on timestamp (example: YYYYMMDDHHMMSS)
+    const invoiceNo = `INV-${now.getFullYear()}${(now.getMonth()+1)
+        .toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
+    
+    setInvoiceInfo(`${invoiceNo} `);
+}, []);
 
-        fetchNextInvoiceNo();
-    }, []);
 
     return (
         <>
@@ -385,7 +392,7 @@ const Invoice = () => {
                         <input
                             type="text"
                             name="invoiceNo"
-                            value={invoiceNo}
+                            value={invoiceInfo}
                             className="form-control"
                             placeholder="INV NO"
                             required

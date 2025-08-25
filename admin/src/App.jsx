@@ -20,6 +20,7 @@ import Recipe from "./pages/Recipe/Recipe"
 import ReverseCalculation from "./pages/ReverseCalculation.jsx/ReverseCalculation";
 import Invoices from "./pages/Invoices/Invoices"
 import EditInvoice from "./pages/Invoice/EditInvoice";
+import ShowInvoice from "./pages/Invoice/ShowInvoice";
 
 function App() {
   return (
@@ -152,6 +153,14 @@ function App() {
               <Layout>
                 <EditInvoice />
               </Layout>
+            }
+          />
+          <Route
+            path="/show-invoice/:id" 
+            element={
+             
+                <ShowInvoice />
+      
             }
           />
           <Route

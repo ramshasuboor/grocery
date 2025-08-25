@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/add", addInvoice);
 router.get("/all", getInvoices);
-router.get("/show/:id", getInvoice);
+router.get("/:id", getInvoice);
 router.patch("/update/:id", updateInvoice);
 router.delete("/delete/:id", deleteInvoice);
 router.get("/nextNo", getNextInvoiceNo);

@@ -1,64 +1,78 @@
 
 
-//  add new invoice
-import Invoice from "../models/invoiceModel.js"
 
 // Add new invoice
+import mongoose from "mongoose";
+import Invoice from "../models/invoiceModel.js";
+
 export const addInvoice = async (req, res) => {
   try {
-    // Last invoice find kar lo
+    // Get last invoice number
     const lastInvoice = await Invoice.findOne().sort({ invoiceNo: -1 });
-
-    const lastNo = lastInvoice && !isNaN (lastInvoice.invoiceNo) ? Number(lastInvoice.invoiceNo): 0;
+    const lastNo =
+      lastInvoice && !isNaN(lastInvoice.invoiceNo)
+        ? Number(lastInvoice.invoiceNo)
+        : 0;
 
     const newInvoiceNo = lastNo + 1;
 
-    // Ab ek hi invoice banao
-    const invoice = new Invoice({
-      ...req.body,
+    // Prepare rows: convert product to ObjectId
+    const rows = req.body.rows.map((r) => ({
+      product: r.product !== "cash" ? mongoose.Types.ObjectId(r.product) : null,
+      quantity: r.quantity,
+      mrp: r.mrp,
+      discount: r.discount,
+      total: r.total,
+      avgQty: r.avgQty || 0,
+    }));
+
+    // Handle Cash Sale (customer can be null)
+    const customerId =
+      req.body.customer === "cash" ? null : mongoose.Types.ObjectId(req.body.customer);
+
+    let invoice = new Invoice({
+      customer: customerId,
+      rows,
+      totals: req.body.totals,
+      paidAmount: req.body.paidAmount,
+      balanceAmount: req.body.balanceAmount,
       invoiceNo: newInvoiceNo,
+      date: new Date().toLocaleDateString(),
     });
 
     await invoice.save();
 
+    // Populate customer and product names
+    invoice = await invoice.populate("customer").populate("rows.product", "name");
+
     res.status(201).json({ success: true, data: invoice });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, error: err.message });
   }
 };
 
 
-// get all invoices
-
-// export const getInvoices = async (req,res) =>{
-//      try {
-//     const invoices = await Invoice.find().sort({ createdAt: -1 });
-    
-
-//     res.json({ success: true, data: invoices });
-//   } catch (err) {
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// }
+// Get all invoices
 export const getInvoices = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = "" } = req.query;
 
     const query = {};
 
-    // If search term is provided, search by customer name or invoice number
+    // search term (customer ke liye alag handle karna hoga)
     if (search) {
-      query.$or = [
-        { "customer.name": { $regex: search, $options: "i" } },
-        { invoiceNo: parseInt(search) || 0 }
-      ];
+      query.invoiceNo = parseInt(search) || 0;
     }
 
     const total = await Invoice.countDocuments(query);
     const invoices = await Invoice.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      // ✅ yaha populate add karo
+      .populate("customer")
+      .populate("rows.product", "name");
 
     res.json({
       success: true,
@@ -82,8 +96,11 @@ export const getInvoices = async (req, res) => {
 
 // get single invoice
 export const getInvoice = async (req,res) =>{
+   console.log("Invoice request aayi with ID:", req.params.id);
     try {
-    const invoice = await Invoice.findById(req.params.id);
+    const invoice = await Invoice.findById(req.params.id)
+    .populate("customer")
+    .populate("rows.product", "name"); ;
     if (!invoice) {
       return res.status(404).json({ success: false, message: "Invoice not found" });
     }

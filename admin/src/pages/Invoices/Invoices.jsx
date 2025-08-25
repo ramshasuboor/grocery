@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import axios from "axios";
 
 const Invoice = () => {
+
+  const navigate = useNavigate();
+
+  const handleShowInvoice = (invoice) => {
+    navigate(`/show-invoice/${invoice._id}`);
+  };
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,7 +63,7 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
 
 
    setPagination(result.pagination || {});
-   setTotalPages(result.pagination?.pages || 1);
+  //  setTotalPages(result.pagination?.pages || 1);
 
     setTotalPages(1);
     setLoading(false);
@@ -182,6 +188,9 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                             <td width="150">
                               <Link
                                 to={`/show-invoice/${invoice._id}`}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  handleShowInvoice(invoice)}}
                                 className="btn btn-sm btn-circle btn-outline-info mr-1"
                                 title="Show"
                               >

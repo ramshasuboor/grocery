@@ -29,26 +29,35 @@ const EditInvoice = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `http://localhost:4000/api/v1/invoice/show/${id}`
+                    `http://localhost:4000/api/v1/invoice/${id}`
                 );
-                 console.log("Invoice from API:", response.data); 
-                if (response.data.success) {
-                    const invoice = response.data.invoice;
+                console.log("Invoice API Response:", response.data);
 
-                    setInvoice(invoice);   // <-- pure invoice object save karo
-
-                    setData((prev) => ({
-                        ...prev,
-                        ...invoice,
-                        totals: {
-                            totalAmount: invoice?.totals?.totalAmount || 0,
-                            totalDiscount: invoice?.totals?.totalDiscount || 0,
-                            grossTotal: invoice?.totals?.grossTotal || 0,
-                        },
-                    }));
-                } else {
-                    setError("Failed to fetch invoice details");
+                const invoice = response?.data?.data;
+                if (!invoice) {
+                    setError("Invoice not found in API response");
+                    return;
                 }
+
+                setInvoice(invoice);
+
+                setData({
+                    customer: invoice.customer?._id || "",
+                    invoiceNo: invoice.invoiceNo || "",
+                    date: invoice.date ? new Date(invoice.date).toISOString().slice(0, 10) : "",
+                    rows: invoice.rows.map(r => ({
+                        ...r,
+                        product: typeof r.product === "object" ? r.product._id : r.product,
+                        productName: typeof r.product === "object" ? r.product.name : "", // UI dikhane ke liye
+                    })),
+                    totals: {
+                        totalAmount: invoice?.totals?.totalAmount || 0,
+                        totalDiscount: invoice?.totals?.totalDiscount || 0,
+                        grossTotal: invoice?.totals?.grossTotal || 0,
+                    },
+                    paidAmount: invoice.paidAmount || "",
+                    balanceAmount: invoice.balanceAmount || "",
+                });
             } catch (error) {
                 console.error("Error fetching invoice details:", error);
                 setError("Error fetching invoice details");
@@ -59,6 +68,7 @@ const EditInvoice = () => {
 
         fetchInvoice();
     }, [id]);
+
 
     // ✅ Rows me change hote hi totals calculate karna
     useEffect(() => {
@@ -189,9 +199,9 @@ const EditInvoice = () => {
                                                     <td>
                                                         <input
                                                             type="text"
-                                                            value={row.product || ""}
+                                                            value={row.productName || ""}
                                                             onChange={(e) =>
-                                                                onRowChange(idx, "product", e.target.value)
+                                                                onRowChange(idx, "productName", e.target.value)
                                                             }
                                                             className="form-control"
                                                         />

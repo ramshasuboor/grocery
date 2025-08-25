@@ -2,12 +2,16 @@ import mongoose from "mongoose";
 
 const invoiceSchema = new mongoose.Schema({
   customer: {
-    type: Object, // direct customer details save karne ke liye
-    required: true,
+   type: mongoose.Schema.Types.ObjectId,
+    ref: "Customer",   // ✅ Model name सही होना चाहिए
+  required: function() { return this.customer !== null; } 
   },
   rows: [
     {
-      product: String,
+      product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product", // Product collection ka naam
+    },
       avgQty: Number,
       quantity: Number,
       mrp: Number,
