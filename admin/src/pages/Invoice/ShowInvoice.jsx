@@ -169,6 +169,7 @@ const ShowInvoice = () => {
           <tr>
             <th>सामान का विवरण</th>
             <th>मात्रा</th>
+            <th>इकाई</th>
             <th>प्रति दर</th>
             <th>कुल</th>
           </tr>
@@ -176,8 +177,9 @@ const ShowInvoice = () => {
         <tbody>
           {rows?.map((row, index) => (
             <tr key={index}>
-              <td>{row.product?.name}</td>
+              <td>{ row.product}</td>
               <td>{row.quantity}</td>
+              <td>{row.unit || "pcs"}</td>
               <td>{row.mrp}</td>
               <td>{row.total}</td>
             </tr>
@@ -190,14 +192,14 @@ const ShowInvoice = () => {
           <div className="summary-label">Subtotal</div>
           <div className="summary-value">{totals?.totalAmount}</div>
         </div>
-        <div className="summary-row">
+        {/* <div className="summary-row">
           <div className="summary-label">Discount</div>
           <div className="summary-value">{totals?.totalDiscount}</div>
         </div>
         <div className="summary-row">
           <div className="summary-label">Subtotal Less Discount</div>
           <div className="summary-value">{totals?.grossTotal}</div>
-        </div>
+        </div> */}
       </div>
 
       <div className="balance-details">
@@ -209,14 +211,14 @@ const ShowInvoice = () => {
         <div>{balanceAmount}</div>
       </div>
 
-      <div className="greeting">
+      {/* <div className="greeting">
         हमारे साथ खरीदारी करने के लिए आप का बहुत बहुत धन्यवाद
       </div>
       <div className="term-section">
         <div className="term-title">
           कृपया काउंटर छोड़ने से पहले हर समय जांच कर लें।
         </div>
-      </div>
+      </div> */}
 
       <div className="print-button-container">
         <button className="btn btn-success" onClick={() => window.print()}>

@@ -9,13 +9,13 @@ const Invoice = () => {
     const [invoiceNo, setInvoiceNo] = useState("");
     const [isRowAdded, setIsRowAdded] = useState(false);
     const [rows, setRows] = useState([
-        { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" }
+        { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" ,unit:""}
     ]);
 
     const handleAddRow = () => {
         setRows([
             ...rows,
-            { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" }
+            { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" ,unit:""}
 
         ]);
         setIsRowAdded(true)
@@ -126,6 +126,37 @@ const Invoice = () => {
     //     setRows(updatedRows);
     // };
 
+    // const handleChange = (index, field, value) => {
+    //     const updatedRows = [...rows];
+    //     updatedRows[index][field] = value;
+
+    //     // Product select hua
+    //     if (field === "product") {
+    //         const selected = items.find((item) => item._id === value);
+    //         if (selected) {
+    //             updatedRows[index].product = selected._id; // <-- store name
+    //             updatedRows[index].avgQty = selected.opening_stock || 0;
+    //             updatedRows[index].mrp = selected.price || 0;
+    //             updatedRows[index].quantity = 1; // default 1 qty
+    //             updatedRows[index].discount = 0;
+    //         }
+    //     }
+
+    //     // Calculation hamesha chalega (chahe product select ho, ya qty/discount change ho)
+    //     const qty = parseFloat(updatedRows[index].quantity) || 0;
+    //     const price = parseFloat(updatedRows[index].mrp) || 0;
+    //     const discount = parseFloat(updatedRows[index].discount) || 0;
+
+    //     const subtotal = qty * price;
+    //     const discountAmount = (subtotal * discount) / 100;
+    //     const finalTotal = subtotal - discountAmount;
+
+    //     updatedRows[index].subtotal = subtotal;
+    //     updatedRows[index].discountAmount = discountAmount;
+    //     updatedRows[index].total = finalTotal;
+
+    //     setRows(updatedRows);
+    // };
     const handleChange = (index, field, value) => {
         const updatedRows = [...rows];
         updatedRows[index][field] = value;
@@ -134,22 +165,36 @@ const Invoice = () => {
         if (field === "product") {
             const selected = items.find((item) => item._id === value);
             if (selected) {
-                updatedRows[index].product = selected._id; // <-- store name
+                updatedRows[index].product = selected._id;
                 updatedRows[index].avgQty = selected.opening_stock || 0;
                 updatedRows[index].mrp = selected.price || 0;
                 updatedRows[index].quantity = 1; // default 1 qty
                 updatedRows[index].discount = 0;
+                 updatedRows[index].unit = selected.unit || "pcs";  // ✅ Yaha unit assign karenge
             }
         }
 
-        // Calculation hamesha chalega (chahe product select ho, ya qty/discount change ho)
         const qty = parseFloat(updatedRows[index].quantity) || 0;
         const price = parseFloat(updatedRows[index].mrp) || 0;
         const discount = parseFloat(updatedRows[index].discount) || 0;
+        let subtotal = 0;
+        let discountAmount = 0;
+        let finalTotal = 0;
 
-        const subtotal = qty * price;
-        const discountAmount = (subtotal * discount) / 100;
-        const finalTotal = subtotal - discountAmount;
+        if (field === "total") {
+            // Agar user total enter kare → quantity auto niklegi
+            const enteredTotal = parseFloat(value) || 0;
+            const qtyFromTotal = price > 0 ? (enteredTotal / price) : 0;
+            updatedRows[index].quantity = qtyFromTotal.toFixed(2); // 2 decimal tak
+            subtotal = qtyFromTotal * price;
+            discountAmount = (subtotal * discount) / 100;
+            finalTotal = subtotal - discountAmount;
+        } else {
+            // Normal calculation (qty se total niklega)
+            subtotal = qty * price;
+            discountAmount = (subtotal * discount) / 100;
+            finalTotal = subtotal - discountAmount;
+        }
 
         updatedRows[index].subtotal = subtotal;
         updatedRows[index].discountAmount = discountAmount;
@@ -157,6 +202,9 @@ const Invoice = () => {
 
         setRows(updatedRows);
     };
+
+
+
 
 
     const calculateTotals = () => {
@@ -186,35 +234,20 @@ const Invoice = () => {
     const paymentTypeRef = useRef([null]);
     const productRef = useRef([]);
     const qtyRef = useRef([]);
-    const discountRef = useRef([]);
+    // const discountRef = useRef([]);
     const paidRef = useRef(null);
     const addBtnRef = useRef([]);
     const deleteBtnRef = useRef([]);
+    const totalRef = useRef([]);
 
 
-    // const handleKeyDown = (e, nextRef, index) => {
-    //     if (e.key === "Enter") {
-    //         e.preventDefault();
-
-    //         // Agar array of refs diya gaya hai
-    //         if (Array.isArray(nextRef.current)) {
-    //             if (nextRef.current[index]) {
-    //                 nextRef.current[index].focus();
-    //             }
-    //         }
-    //         // Agar single ref diya gaya hai
-    //         else if (nextRef.current) {
-    //             nextRef.current.focus();
-    //         }
-    //     }
-    // };
 
     const handleKeyDown = (e, nextRef, index, prevRef) => {
         if (e.key === "Enter") {
             e.preventDefault();
 
-            // ✅ Shift + Enter → back focus
             if (e.shiftKey) {
+                // 🔙 Shift + Enter → Previous
                 if (Array.isArray(prevRef?.current)) {
                     if (prevRef.current[index]) {
                         prevRef.current[index].focus();
@@ -225,7 +258,7 @@ const Invoice = () => {
                 return;
             }
 
-            // ✅ Normal Enter → next focus
+            // 🔜 Normal Enter → Next
             if (Array.isArray(nextRef?.current)) {
                 if (nextRef.current[index]) {
                     nextRef.current[index].focus();
@@ -235,6 +268,7 @@ const Invoice = () => {
             }
         }
     };
+
 
 
     useEffect(() => {
@@ -269,79 +303,107 @@ const Invoice = () => {
             }
         }, 0);
     };
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-
-        try {
-            const invoiceData = {
-                customer: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer._id,
-                // invoiceNo: invoiceNo,
-                rows: rows.map(r => ({
-                    product: r.product, // sirf product id
-                    quantity: r.quantity,
-                    mrp: r.mrp,
-                    discount: r.discount,
-                    total: r.total,
-                })),
-                totals: totals,
-                paidAmount: paidAmount,
-                balanceAmount: balanceAmount,
-                invoiceInfo: invoiceInfo, 
-                date: new Date().toLocaleDateString(),
-            };
-
-            const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(invoiceData),
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert("Invoice saved successfully!");
-                // navigate("/invoices"); // yahan tumhare list page ka route dalna
-            } else {
-                alert("Failed to save invoice: " + result.error);
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            // Agar user '+' press kare
+            if (e.key === "+" || e.key === "=") {
+                // '=' isliye, kyunki keyboard pe '+' Shift + '=' hota hai
+                e.preventDefault();
+                handleAddRow();
             }
-        } catch (err) {
-            console.error("Error saving invoice:", err);
-            alert("Something went wrong!");
+            // Agar user '-' press kare → Delete Last Row
+            if (e.key === "-") {
+                e.preventDefault();
+                if (rows.length > 0) {
+                    handleDeleteRow(rows.length - 1); // last row delete hogi
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [rows]);
+
+    const handleSaveAndPrint = async () => {
+    try {
+        const invoiceData = {
+            customer: selectedCustomer === "cash" ? null : selectedCustomer._id,
+            customerName: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer.name,
+            rows: rows.map(r => ({
+                // product: r.product,
+                product: items.find(i => i._id === r.product)?.name || r.product, 
+                quantity: r.quantity,
+                mrp: r.mrp,
+                discount: r.discount,
+                total: r.total,
+                unit: r.unit || "pcs", 
+            //    unit: items.find(i => i._id === r.product)?.unit || r.unit, // string
+            })),
+            totals: totals,
+            paidAmount: paidAmount,
+            balanceAmount: balanceAmount,
+            invoiceNo: invoiceInfo,
+            date: new Date().toLocaleDateString(),
+        };
+
+        const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(invoiceData),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // ✅ Pehle save ho gaya
+            alert("Invoice saved successfully!");
+
+            // ✅ Ab print page pe navigate karo
+            handlePrintClick();
+        } else {
+            alert("Failed to save invoice: " + result.error);
         }
-    };
+    } catch (err) {
+        console.error("Error saving invoice:", err);
+        alert("Something went wrong!");
+    }
+};
 
-// useEffect(() => {
-//     const fetchInvoiceNo = async () => {
-//         try {
-//             const res = await fetch("http://localhost:4000/api/v1/invoice/nextNo");
-//             const data = await res.json();
-//             console.log(data, "invioce")
-//             if (data.success) {
-//                 setInvoiceNo((data.nextInvoiceNo)); // ensure backend JSON is { success: true, nextInvoiceNo: ... }
-//             } else {
-//                 console.error("Failed to get next invoice no:", data.error);
-//             }
-//         } catch (err) {
-//             console.error("Error fetching invoice no:", err);
-//         }
-//     };
-//     fetchInvoiceNo();
-// }, []);
+    // useEffect(() => {
+    //     const fetchInvoiceNo = async () => {
+    //         try {
+    //             const res = await fetch("http://localhost:4000/api/v1/invoice/nextNo");
+    //             const data = await res.json();
+    //             console.log(data, "invioce")
+    //             if (data.success) {
+    //                 setInvoiceNo((data.nextInvoiceNo)); // ensure backend JSON is { success: true, nextInvoiceNo: ... }
+    //             } else {
+    //                 console.error("Failed to get next invoice no:", data.error);
+    //             }
+    //         } catch (err) {
+    //             console.error("Error fetching invoice no:", err);
+    //         }
+    //     };
+    //     fetchInvoiceNo();
+    // }, []);
 
 
 
-const [invoiceInfo, setInvoiceInfo] = useState("");
+    const [invoiceInfo, setInvoiceInfo] = useState("");
 
-useEffect(() => {
-    // Page load pe automatic generate karenge
-    const now = new Date();
-    
-    // Generate invoice number based on timestamp (example: YYYYMMDDHHMMSS)
-    const invoiceNo = `INV-${now.getFullYear()}${(now.getMonth()+1)
-        .toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
-    
-    setInvoiceInfo(`${invoiceNo} `);
-}, []);
+    useEffect(() => {
+        // Page load pe automatic generate karenge
+        const now = new Date();
+
+        // Generate invoice number based on timestamp (example: YYYYMMDDHHMMSS)
+        const invoiceNo = `INV-${now.getFullYear()}${(now.getMonth() + 1)
+            .toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+
+        setInvoiceInfo(`${invoiceNo} `);
+    }, []);
 
 
     return (
@@ -407,8 +469,8 @@ useEffect(() => {
                             onKeyDown={(e) => handleKeyDown(e, productRef, 0, customerRef)}
                             required
                         >
-                            <option value="Credit Payment">Credit Payment</option>
                             <option value="Cash Payment">Cash Payment</option>
+                            <option value="Credit Payment">Credit Payment</option>
 
                         </select>
                     </div>
@@ -448,7 +510,8 @@ useEffect(() => {
                         <th>AVG-QTY</th>
                         <th>Quantity</th>
                         <th>MRP</th>
-                        <th>Discount%</th>
+                        <th>Unit</th>
+                        {/* <th>Discount%</th> */}
                         <th>Total</th>
                         <th>Action</th>
                     </tr>
@@ -501,7 +564,7 @@ useEffect(() => {
                                     placeholder="Quantity"
                                     data-index={index}
                                     ref={(el) => (qtyRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, discountRef, index, productRef)}
+                                    onKeyDown={(e) => handleKeyDown(e, totalRef, index, productRef)}
                                     required
                                 />
                             </td>
@@ -518,6 +581,17 @@ useEffect(() => {
                             </td>
                             <td>
                                 <input
+                                    type="text"
+                                    value={row.unit}
+                                    name="unit"
+                                    className="form-control input"
+                                    placeholder="Kg/Gm"
+                                    readOnly
+                                    required
+                                />
+                            </td>
+                            {/* <td>
+                                <input
                                     type="number"
                                     value={row.discount}
                                     onChange={(e) =>
@@ -531,15 +605,18 @@ useEffect(() => {
                                     onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)}
                                     required
                                 />
-                            </td>
+                            </td> */}
                             <td>
                                 <input
                                     type="number"
                                     value={row.total}
                                     name="total"
+                                    ref={(el) => (totalRef.current[index] = el)}
+                                    onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)}
                                     className="form-control input"
                                     placeholder="Total"
-                                    readOnly
+                                    onChange={(e) => handleChange(index, "total", e.target.value)}
+
                                     required
                                 />
                             </td>
@@ -549,14 +626,14 @@ useEffect(() => {
                                         type="button"
                                         className='add-btn'
                                         ref={(el) => (addBtnRef.current[index] = el)}
-                                        onKeyDown={(e) => handleKeyDown(e, deleteBtnRef, index, discountRef)}
+                                        onKeyDown={(e) => handleKeyDown(e, deleteBtnRef, index, totalRef)}
                                         onClick={handleAddRow}>
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
                                     <button
                                         type="button" className='delete-btn'
                                         ref={(el) => (deleteBtnRef.current[index] = el)}
-                                        onKeyDown={(e) => handleKeyDown(e, paidRef, addBtnRef)}
+                                        onKeyDown={(e) => handleKeyDown(e, paidRef, index, paidRef)}
                                         onClick={() => handleDeleteRow(index)}>
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
@@ -578,16 +655,14 @@ useEffect(() => {
                         <h6>Total Amount:</h6>
                         <input type="number" value={totals.totalAmount} name="total_amount" id="total_amount" readOnly />
                     </div>
-                    <div className="total-item">
+                    {/* <div className="total-item">
                         <h6>Total Discount:</h6>
                         <input type="number" value={totals.totalDiscount} name="total_discount" id="total_discount" readOnly />
-                    </div>
+                    </div> */}
                     <div className="total-item">
                         <h6>Gross Total:</h6>
                         <input type="number" value={totals.grossTotal} name="gross_total" id="gross_total" readOnly />
                     </div>
-                </div>
-                <div className="total-second-row mt-3">
                     <div className="total-item">
                         <h6>Amount Paid:</h6>
                         <input type="number" className='no-spinner' ref={paidRef}
@@ -598,11 +673,26 @@ useEffect(() => {
                         <input type="number" value={balanceAmount || 0} name="balance_amount" id="balance_amount" readOnly />
                     </div>
                 </div>
+                {/* <div className="total-second-row mt-3">
+                    <div className="total-item">
+                        <h6>Amount Paid:</h6>
+                        <input type="number" className='no-spinner' ref={paidRef}
+                            onKeyDown={(e) => handleKeyDown(e, customerRef, deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
+                    </div>
+                    <div className="total-item">
+                        <h6>Balance Amount:</h6>
+                        <input type="number" value={balanceAmount || 0} name="balance_amount" id="balance_amount" readOnly />
+                    </div>
+                </div> */}
             </div>
             <div className="button d-flex flex-column mt-5 mb-5">
-                <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button>
+                {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
                 <button className='btn btn-success align-self-start 
-                'onClick={handlePrintClick} type='button'>Print Invoice</button>
+                'onClick={() => {
+                    handleSaveAndPrint()
+                    // handleSave();
+                    // handlePrintClick();
+                    }} type='button'>Print Invoice</button>
             </div>
 
         </>

@@ -96,7 +96,7 @@
 
 .total-first-row {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 30px;
 }
 
@@ -110,7 +110,7 @@
     border-radius: 4px;
     align-items: center;
     padding: 5px;
-    width: 80%;
+    width: 100%;
 }
 
 .total-second-row {

@@ -180,7 +180,7 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                           <tr key={invoice._id}>
                             <td>{(currentPage - 1) * limit + index + 1}</td>
                             <td>{invoice.invoiceNo}</td>
-                            <td>{invoice.customer?.name}</td>
+                            <td>{invoice.customerName}</td>
                             {/* <td>{invoice.date}</td> */}
                             <td>{invoice.totals?.grossTotal}</td>
                             <td>{invoice.paidAmount}</td>

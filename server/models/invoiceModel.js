@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 
 const invoiceSchema = new mongoose.Schema({
-  customer: {
-   type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer",   // ✅ Model name सही होना चाहिए
-  required: function() { return this.customer !== null; } 
-  },
+customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+    },
+
+    // 👇 Ab sahi jagah par
+    customerName: { type: String, required: true },
   rows: [
     {
       product: {
@@ -17,6 +19,7 @@ const invoiceSchema = new mongoose.Schema({
       mrp: Number,
       discount: Number,
       total: Number,
+      unit: String,
     },
   ],
   totals: {
@@ -27,7 +30,7 @@ const invoiceSchema = new mongoose.Schema({
   paidAmount: Number,
   balanceAmount: Number,
 invoiceNo: {
-      type: Number,
+      type: String,
       required: true,
       unique: true, // har invoice ek hi baar ho
     },
