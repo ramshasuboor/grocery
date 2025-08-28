@@ -9,13 +9,13 @@ const Invoice = () => {
     const [invoiceNo, setInvoiceNo] = useState("");
     const [isRowAdded, setIsRowAdded] = useState(false);
     const [rows, setRows] = useState([
-        { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" ,unit:""}
+        { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "", unit: "" }
     ]);
 
     const handleAddRow = () => {
         setRows([
             ...rows,
-            { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "" ,unit:""}
+            { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "", unit: "" }
 
         ]);
         setIsRowAdded(true)
@@ -120,43 +120,6 @@ const Invoice = () => {
         });
     };
 
-
-    // const handleDeleteRow = (index) => {
-    //     const updatedRows = rows.filter((_, i) => i !== index);
-    //     setRows(updatedRows);
-    // };
-
-    // const handleChange = (index, field, value) => {
-    //     const updatedRows = [...rows];
-    //     updatedRows[index][field] = value;
-
-    //     // Product select hua
-    //     if (field === "product") {
-    //         const selected = items.find((item) => item._id === value);
-    //         if (selected) {
-    //             updatedRows[index].product = selected._id; // <-- store name
-    //             updatedRows[index].avgQty = selected.opening_stock || 0;
-    //             updatedRows[index].mrp = selected.price || 0;
-    //             updatedRows[index].quantity = 1; // default 1 qty
-    //             updatedRows[index].discount = 0;
-    //         }
-    //     }
-
-    //     // Calculation hamesha chalega (chahe product select ho, ya qty/discount change ho)
-    //     const qty = parseFloat(updatedRows[index].quantity) || 0;
-    //     const price = parseFloat(updatedRows[index].mrp) || 0;
-    //     const discount = parseFloat(updatedRows[index].discount) || 0;
-
-    //     const subtotal = qty * price;
-    //     const discountAmount = (subtotal * discount) / 100;
-    //     const finalTotal = subtotal - discountAmount;
-
-    //     updatedRows[index].subtotal = subtotal;
-    //     updatedRows[index].discountAmount = discountAmount;
-    //     updatedRows[index].total = finalTotal;
-
-    //     setRows(updatedRows);
-    // };
     const handleChange = (index, field, value) => {
         const updatedRows = [...rows];
         updatedRows[index][field] = value;
@@ -170,7 +133,7 @@ const Invoice = () => {
                 updatedRows[index].mrp = selected.price || 0;
                 updatedRows[index].quantity = 1; // default 1 qty
                 updatedRows[index].discount = 0;
-                 updatedRows[index].unit = selected.unit || "pcs";  // ✅ Yaha unit assign karenge
+                updatedRows[index].unit = selected.unit;  // ✅ Yaha unit assign karenge
             }
         }
 
@@ -328,49 +291,52 @@ const Invoice = () => {
     }, [rows]);
 
     const handleSaveAndPrint = async () => {
-    try {
-        const invoiceData = {
-            customer: selectedCustomer === "cash" ? null : selectedCustomer._id,
-            customerName: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer.name,
-            rows: rows.map(r => ({
-                // product: r.product,
-                product: items.find(i => i._id === r.product)?.name || r.product, 
-                quantity: r.quantity,
-                mrp: r.mrp,
-                discount: r.discount,
-                total: r.total,
-                unit: r.unit || "pcs", 
-            //    unit: items.find(i => i._id === r.product)?.unit || r.unit, // string
-            })),
-            totals: totals,
-            paidAmount: paidAmount,
-            balanceAmount: balanceAmount,
-            invoiceNo: invoiceInfo,
-            date: new Date().toLocaleDateString(),
-        };
+        console.log("✅ handleSaveAndPrint function called");
+        try {
+            console.log("rows =>", rows);
+            const invoiceData = {
+                customer: selectedCustomer === "cash" ? "Cash" : selectedCustomer._id,
+                customerName: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer.name,
+                rows: rows.map(r => ({
+                    product: r.product,
+                    // product: items.find(i => i._id === r.product)?.name || r.product,
+                    quantity: r.quantity,
+                    mrp: r.mrp,
+                    discount: r.discount,
+                    total: r.total,
+                    // unit: r.unit || "pcs", 
+                    unit: items.find(i => i._id === r.product)?.unit || r.unit, // string
+                })),
+                totals: totals,
+                paidAmount: paidAmount,
+                balanceAmount: balanceAmount,
+                invoiceNo: invoiceInfo,
+                date: new Date().toLocaleDateString(),
+            };
 
-        const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(invoiceData),
-        });
+            console.log("Invoice Data =>", invoiceData);
+            const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(invoiceData),
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-            // ✅ Pehle save ho gaya
-            alert("Invoice saved successfully!");
+            if (result.success) {
+                // ✅ Pehle save ho gaya
+                alert("Invoice saved successfully!");
 
-            // ✅ Ab print page pe navigate karo
-            handlePrintClick();
-        } else {
-            alert("Failed to save invoice: " + result.error);
+                // ✅ Ab print page pe navigate karo
+                handlePrintClick();
+            } else {
+                alert("Failed to save invoice: " + result.error);
+            }
+        } catch (err) {
+            console.error("Error saving invoice:", err);
+            alert("Something went wrong!");
         }
-    } catch (err) {
-        console.error("Error saving invoice:", err);
-        alert("Something went wrong!");
-    }
-};
+    };
 
     // useEffect(() => {
     //     const fetchInvoiceNo = async () => {
@@ -418,7 +384,7 @@ const Invoice = () => {
                             ref={customerRef}
                             onKeyDown={(e) => handleKeyDown(e, paymentTypeRef)}
                             className="form-control"
-                            value={selectedCustomer === "cash" ? "cash" : selectedCustomer?._id || ""}
+                            value={ selectedCustomer?._id }
                             onChange={handleCustomerSelect}
                             placeholder="Customer Name"
                             required
@@ -689,9 +655,8 @@ const Invoice = () => {
                 {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
                 <button className='btn btn-success align-self-start 
                 'onClick={() => {
-                    handleSaveAndPrint()
-                    // handleSave();
-                    // handlePrintClick();
+                        console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
+                        handleSaveAndPrint();
                     }} type='button'>Print Invoice</button>
             </div>
 

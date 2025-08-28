@@ -49,18 +49,6 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
     // Agar sirf data array aata hai
     setInvoices(result.data || []);
 
-    // Pagination dummy set kar do (tab tak jab tak backend support add na ho)
-    // setPagination({
-    //   total: result.data?.length || 0,
-    //   limit: limit,
-    //   page: page,
-    //   pages: 1,
-    //   hasNextPage: false,
-    //   hasPrevPage: false,
-    //   nextPage: null,
-    //   prevPage: null,
-    // });
-
 
    setPagination(result.pagination || {});
   //  setTotalPages(result.pagination?.pages || 1);
