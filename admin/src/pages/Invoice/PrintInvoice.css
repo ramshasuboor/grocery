@@ -32,6 +32,16 @@
         font-size: 14px;
     }
 
+    
+.billing-section {
+    flex: 1;
+    text-align: left;
+}
+
+.date-section {
+    flex: 1;
+    text-align: right;
+}
     .billing-section,
     .dates-section {
         width: 100%;

@@ -25,7 +25,7 @@ const ShowInvoice = () => {
     return <h3>Loading...</h3>;
   }
 
-  const { customer,rows, totals, paidAmount, balanceAmount, invoiceNo, date,customerId,customerName } = invoice;
+  const { customer,rows, totals, paidAmount, balanceAmount, invoiceNo, date, } = invoice;
 
   return (
     <div className="invoice-container">
@@ -54,7 +54,7 @@ const ShowInvoice = () => {
           <div>
             <span className="date-label">Invoice No#:</span> {invoiceNo}
           </div>
-          <div>
+          <div className="mt-2">
             <span className="date-label">Date:</span>{" "}
             {date ? new Date(date).toLocaleDateString("en-GB") : ""}
           </div>

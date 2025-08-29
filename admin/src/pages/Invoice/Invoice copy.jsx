@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "./Invoice.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import Select from "react-select";
+
 const Invoice = () => {
     const navigate = useNavigate();
     const [invoiceNo, setInvoiceNo] = useState("");
@@ -114,9 +116,8 @@ const Invoice = () => {
                 totals: totals,
                 paidAmount: paidAmount,
                 balanceAmount: balanceAmount,
-                invoiceNo: invoiceInfo,
-                // date: new Date(),
-                date: new Date().toLocaleString("en-GB"),
+                invoiceNo: invoiceNo,
+                date: new Date().toLocaleDateString(),
             },
         });
     };
@@ -369,7 +370,6 @@ const Invoice = () => {
         const invoiceNo = `INV-${now.getFullYear()}${(now.getMonth() + 1)
             .toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
 
-  console.log("Generated Invoice No:", invoiceNo); 
         setInvoiceInfo(`${invoiceNo} `);
     }, []);
 
@@ -381,25 +381,33 @@ const Invoice = () => {
                 <div className="form-row">
                     <div className="col-md">
                         <label className="form-label">Customer Name:</label>
-                        <select
+                        <Select
                             ref={customerRef}
                             onKeyDown={(e) => handleKeyDown(e, paymentTypeRef)}
-                            id="customerId"
-                            name="customerName"
-                            className="form-control"
-                            value={selectedCustomer?._id}
-                            onChange={handleCustomerSelect}
-                        >
-                            <option value="" disabled hidden>
-                                Select Customer
-                            </option>
-                            <option value="cash">Cash Sale</option>
-                            {customers.map((customer) => (
-                                <option key={customer._id} value={customer._id}>
-                                    {customer.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={[
+                                { value: "cash", label: "Cash Sale" },
+                                ...customers.map(c => ({
+                                    value: c._id,
+                                    label: c.name
+                                }))
+                            ]}
+                            value={
+                                selectedCustomer === "cash"
+                                    ? { value: "cash", label: "Cash Sale" }
+                                    : selectedCustomer
+                                        ? { value: selectedCustomer._id, label: selectedCustomer.name }
+                                        : null
+                            }
+                            onChange={(option) => {
+                                if (option.value === "cash") {
+                                    setSelectedCustomer("cash");
+                                } else {
+                                    const customer = customers.find((c) => c._id === option.value);
+                                    setSelectedCustomer(customer);
+                                }
+                            }}
+                            placeholder="Select or Search Customer"
+                        />
                     </div>
                     <div className="col-md">
                         <label className="form-label">Address</label>
@@ -483,28 +491,27 @@ const Invoice = () => {
                     {rows.map((row, index) => (
                         <tr key={index}>
                             <td>
-                                <select
-                                    name="select"
-                                    data-index={index}
-                                    onChange={(e) => {
-                                        handleChange(index, "product", e.target.value);
+                                <Select
+                                    options={items.map((item) => ({
+                                        value: item._id,
+                                        label: item.name,
+                                    }))}
+                                    value={
+                                        row.product
+                                            ? {
+                                                value: row.product,
+                                                label: items.find((item) => item._id === row.product)?.name || "",
+                                            }
+                                            : null
+                                    }
+                                    onChange={(option) => {
+                                        handleChange(index, "product", option.value);
                                     }}
-                                    value={row.product}
-                                    className="form-control select"
-                                    ref={(el) => (productRef.current[index] = el)}
+                                    placeholder="Select or Search Product"
+                                    ref={(el) => (productRef.current[index] = el)} // agar aapko focus chahiye
                                     onKeyDown={(e) => handleKeyDown(e, qtyRef, index, paymentTypeRef)}
-                                    required
-                                >
-                                    <option value="">Select Products:</option>
-                                    {items.map((item) => (
-                                        <option key={item._id} value={item._id}>
-                                            {item.name}
-                                        </option>
-                                    ))}
-
-                                </select>
+                                />
                             </td>
-
                             <td>
                                 <input
                                     type="number"
@@ -604,7 +611,7 @@ const Invoice = () => {
                                 </div>
                             </td>
                         </tr>
-                     ))}
+                    ))}
 
                 </tbody>
             </table>

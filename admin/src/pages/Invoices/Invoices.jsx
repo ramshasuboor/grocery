@@ -110,7 +110,7 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                 <h3 className="mb-0">List of All Invoices</h3>
                 <div className="ml-auto">
                   <Link to="/invoice" className="btn btn-success">
-                    <i className="fa fa-plus-circle"></i> Add New
+                    <i className="fa fa-plus-circle"></i> Add New Invoice
                   </Link>
                 </div>
               </div>

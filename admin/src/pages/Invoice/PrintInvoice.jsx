@@ -31,12 +31,13 @@ const PrintInvoice = () => {
                     </div>
 
                     <div className="date-section ">
-                        <div>
+                        <div className="">
                             <span className="date-label">Invoice No#:</span>
                             {invoiceNo}</div>
-                        <div>
+                        <div className="mt-2">
                             <span className="date-label">Date:</span>
-                            {date ? new Date().toLocaleDateString("en-GB") : ""} </div>
+                            {date ? new Date().toLocaleDateString("en-GB") : ""}
+                        </div>
                     </div>
                 </div>
 
@@ -45,24 +46,24 @@ const PrintInvoice = () => {
                         <tr>
                             <th>सामान का विवरण</th>
                             <th>मात्रा</th>
-                             <th>इकाई</th>
+                            <th>इकाई</th>
                             <th>प्रति दर</th>
                             <th>कुल</th>
-                           
+
                         </tr>
                     </thead>
                     <tbody>
                         {rows?.map((row, index) => {
-                          return(
-                              <tr key={index}>
-                                <td>{row.product}</td>
-                                <td>{row.quantity}</td>
-                                <td>{row.unit || "pcs"}</td>
-                                <td>{row.mrp}</td>
-                                <td>{row.total}</td>
-                                
-                            </tr>
-                          )
+                            return (
+                                <tr key={index}>
+                                    <td>{row.product}</td>
+                                    <td>{row.quantity}</td>
+                                    <td>{row.unit || "pcs"}</td>
+                                    <td>{row.mrp}</td>
+                                    <td>{row.total}</td>
+
+                                </tr>
+                            )
                         })}
 
                     </tbody>
@@ -98,7 +99,7 @@ const PrintInvoice = () => {
                     </div>
                 </div> */}
                 <div className="print-button-container">
-                    <button className='btn btn-success'  onClick={() => window.print()}>Print Invoice</button>
+                    <button className='btn btn-success' onClick={() => window.print()}>Print Invoice</button>
                 </div>
             </div>
         </>
