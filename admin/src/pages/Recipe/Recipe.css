@@ -1,3 +1,12 @@
+.customer-select{
+  width: 300px;
+}
+.small-select{
+  width:  150px;
+}
+.small-input{
+  width: 80px;
+}
 .recipe-row {
   display: flex;
   align-items: flex-end;   /* inputs and button bottom aligned */
@@ -14,12 +23,10 @@
     font-weight: 700;
 }
 
-.recipe .form-control {
-  min-width: 180px;       /* thoda wide dikhne ke liye */
-}
+/*  */
 
 .recipe button {
-  padding: 6px 12px;
-  font-weight: 500;
+  padding: 6px 10px;
+  font-weight: 600;
   border-radius: 4px;
 }

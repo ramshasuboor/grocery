@@ -11,16 +11,6 @@
     font-weight: 400;
 }
 
-.product-table th {
-    background-color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-    border-top: 2px solid green;
-    border-bottom: 2px solid green;
-    padding: 8px 0 8px 0;
-    text-align: center;
-}
-
 .contact-input {
     margin-left: 80px;
     font-weight: 400;
@@ -31,38 +21,59 @@
     /* margin: -8px; */
 }
 
-.product-table {
-    width: 100%;
-    table-layout: fixed;
-    /* columns ki width fixed ho jayegi */
-    border-collapse: collapse;
-}
-
-
-.product-table td {
-    padding: 10px 5px 10px 5px;
-    margin-top: 5px;
-    border-bottom: 1px solid #aaa;
-}
-
-.product-table .select {
-    max-width: 240px;
-    font-weight: 400;
-}
-
-
-.product-table .input {
-    max-width: 115px;
-    margin-left: 2rem;
-    font-weight: 400;
-
-}
-
-
-.product-table td:last-child {
+.product-table th {
+    background-color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    border-top: 2px solid green;
+    border-bottom: 2px solid green;
+    padding: 8px 0 8px 0;
     text-align: center;
 }
 
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th,
+.product-table td {
+  padding: 7px;
+  /* text-align: center; */
+}
+
+/* Product column ko zyada space do */
+.product-table td.product-column,
+.product-table th.product-column {
+  width: 25%;
+  text-align: left;
+}
+
+/* Baaki columns chhote */
+.product-table td.availabe-column,
+.product-table th.available-column {
+  width: 10%;
+  text-align: left;
+}
+.product-table td.small-column,
+.product-table th.small-column {
+  width: 10%;
+  text-align: left;
+}
+
+/* Input aur select styling */
+.product-table input,
+.product-table select {
+  width: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.product-table .form-control {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    align-items: center;
+}
 .product-table .add-btn {
     background-color: green;
     color: #fff;
@@ -83,12 +94,6 @@
     /* margin: 5px ; */
 }
 
-.product-table .form-control {
-    background-color: #fff;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    align-items: center;
-}
 
 .total-item {
     max-width: 150px;

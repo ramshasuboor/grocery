@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from "react-router-dom";
 // import axios from 'axios';
 import "./Invoice.css"
+import Select from "react-select"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 const Invoice = () => {
@@ -110,6 +111,7 @@ const Invoice = () => {
         navigate("/print-invoice", {
             state: {
                 customer: selectedCustomer,
+                customerName: selectedCustomer?.name,
                 rows: rowsWithNames,
                 totals: totals,
                 paidAmount: paidAmount,
@@ -296,8 +298,13 @@ const Invoice = () => {
         try {
             console.log("rows =>", rows);
             const invoiceData = {
-                customer: selectedCustomer === "cash" ? "Cash" : selectedCustomer._id,
-                customerName: selectedCustomer === "cash" ? "Cash Sale" : selectedCustomer.name,
+                customer: selectedCustomer === "cash"
+                    ? null  // Cash ke case me customerId store mat karo
+                    : selectedCustomer?._id || null,
+
+                customerName: selectedCustomer === "cash"
+                    ? "Cash Sale"
+                    : selectedCustomer?.name || "Unknown",
                 rows: rows.map(r => ({
                     product: r.product,
                     // product: items.find(i => i._id === r.product)?.name || r.product,
@@ -314,6 +321,7 @@ const Invoice = () => {
                 invoiceNo: invoiceInfo,
                 date: new Date().toLocaleDateString(),
             };
+            console.log("Selected Customer:", selectedCustomer);
 
             console.log("Invoice Data =>", invoiceData);
             const response = await fetch("http://localhost:4000/api/v1/invoice/add", {
@@ -369,7 +377,7 @@ const Invoice = () => {
         const invoiceNo = `INV-${now.getFullYear()}${(now.getMonth() + 1)
             .toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
 
-  console.log("Generated Invoice No:", invoiceNo); 
+        console.log("Generated Invoice No:", invoiceNo);
         setInvoiceInfo(`${invoiceNo} `);
     }, []);
 
@@ -381,25 +389,50 @@ const Invoice = () => {
                 <div className="form-row">
                     <div className="col-md">
                         <label className="form-label">Customer Name:</label>
-                        <select
+                        <Select
                             ref={customerRef}
-                            onKeyDown={(e) => handleKeyDown(e, paymentTypeRef)}
-                            id="customerId"
-                            name="customerName"
-                            className="form-control"
-                            value={selectedCustomer?._id}
-                            onChange={handleCustomerSelect}
-                        >
-                            <option value="" disabled hidden>
-                                Select Customer
-                            </option>
-                            <option value="cash">Cash Sale</option>
-                            {customers.map((customer) => (
-                                <option key={customer._id} value={customer._id}>
-                                    {customer.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={[
+                                { value: "cash", label: "Cash Sale" },
+                                ...customers.map(c => ({
+                                    value: c._id,
+                                    label: c.name,
+                                    address: c.address,
+                                    mobile: c.mobile
+                                }))
+                            ]}
+                            value={
+                                selectedCustomer
+                                    ? {
+                                        value: selectedCustomer._id || "cash",
+                                        label: selectedCustomer.name,
+                                        address: selectedCustomer.address || "",
+                                        mobile: selectedCustomer.mobile || ""
+                                    }
+                                    : null
+                            }
+                            onChange={(option) => {
+                                if (option.value === "cash") {
+                                    setSelectedCustomer({
+                                        _id: null, name: "Cash Sale", address: "",
+                                        mobile: "",
+                                        opening_balance: 0
+                                    }); // 👈 object hi
+                                } else {
+                                    const customer = customers.find((c) => c._id === option.value);
+                                    setSelectedCustomer(customer);
+                                }// hamesha full option object store hoga
+                                setTimeout(() => {
+                                    if (paymentTypeRef.current) {
+                                        paymentTypeRef.current.focus();
+                                    }
+                                }, 100);
+                            }}
+                            placeholder="Select or Search Customer"
+                            isClearable
+                        />
+
+
+
                     </div>
                     <div className="col-md">
                         <label className="form-label">Address</label>
@@ -450,7 +483,8 @@ const Invoice = () => {
                 </div>
                 <div className="form-row mt-4 align-items-end mb-5">
                     <div className="col-md-auto mt-4">
-                        <button className='btn btn-success'>Add Customer</button>
+                        <button className='btn btn-success'
+                            onClick={() => navigate("/add-customer")}  >Add Customer</button>
                     </div>
                     <div className="col-md mt-1 contact-input">
                         <label className="form-label">Contact Number:</label>
@@ -469,40 +503,47 @@ const Invoice = () => {
             <table className='product-table mt-4 p-3'>
                 <thead className='mt-5'>
                     <tr className='table-heading'>
-                        <th>Product Name</th>
-                        <th>AVG-QTY</th>
-                        <th>Quantity</th>
-                        <th>MRP</th>
-                        <th>Unit</th>
+                        <th className='product-column'>Product Name</th>
+                        <th className='available-column'>In-Stock</th>
+                        <th className='small-column'>Quantity</th>
+                        <th className='small-column'>MRP</th>
+                        <th className='small-column'>Unit</th>
                         {/* <th>Discount%</th> */}
-                        <th>Total</th>
-                        <th>Action</th>
+                        <th className='small-column'>Total</th>
+                        <th className='small-column'>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {rows.map((row, index) => (
                         <tr key={index}>
                             <td>
-                                <select
-                                    name="select"
-                                    data-index={index}
-                                    onChange={(e) => {
-                                        handleChange(index, "product", e.target.value);
-                                    }}
-                                    value={row.product}
-                                    className="form-control select"
-                                    ref={(el) => (productRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, qtyRef, index, paymentTypeRef)}
-                                    required
-                                >
-                                    <option value="">Select Products:</option>
-                                    {items.map((item) => (
-                                        <option key={item._id} value={item._id}>
-                                            {item.name}
-                                        </option>
-                                    ))}
+                                <Select
+                                    className='product-column'
+                                    options={items.map((item) => ({
+                                        value: item._id,
+                                        label: item.name,
+                                    }))}
+                                    value={
+                                        row.product
+                                            ? {
+                                                value: row.product,
+                                                label: items.find((item) => item._id === row.product)?.name || "",
+                                            }
+                                            : null
+                                    }
+                                    onChange={(option) => {
+                                        handleChange(index, "product", option.value);
 
-                                </select>
+                                        setTimeout(() => {
+                                            if (qtyRef.current[index]) {
+                                                qtyRef.current[index].focus();
+                                            }
+                                        }, 100);
+                                    }}
+                                    placeholder="Select or Search Product"
+                                    ref={(el) => (productRef.current[index] = el)} // agar aapko focus chahiye
+                                // onKeyDown={(e) => handleKeyDown(e, qtyRef, index, paymentTypeRef)}
+                                />
                             </td>
 
                             <td>
@@ -510,8 +551,8 @@ const Invoice = () => {
                                     type="number"
                                     value={row.avgQty}
                                     name="avgQty"
-                                    className="form-control input"
-                                    placeholder="AVG-QTY"
+                                    className="form-control input small-input available-column"
+                                    placeholder="In-Stock"
                                     required
                                     readOnly
                                 />
@@ -524,7 +565,7 @@ const Invoice = () => {
                                         handleChange(index, "quantity", e.target.value)
                                     }
                                     name="quantity"
-                                    className="form-control input"
+                                    className="form-control input small-input small-column"
                                     placeholder="Quantity"
                                     data-index={index}
                                     ref={(el) => (qtyRef.current[index] = el)}
@@ -537,7 +578,7 @@ const Invoice = () => {
                                     type="number"
                                     value={row.mrp}
                                     name="mrp"
-                                    className="form-control input"
+                                    className="form-control input small-input small-column"
                                     placeholder="MRP"
                                     readOnly
                                     required
@@ -548,7 +589,7 @@ const Invoice = () => {
                                     type="text"
                                     value={row.unit}
                                     name="unit"
-                                    className="form-control input"
+                                    className="form-control input small-input small-column"
                                     placeholder="Kg/Gm"
                                     readOnly
                                     required
@@ -577,7 +618,7 @@ const Invoice = () => {
                                     name="total"
                                     ref={(el) => (totalRef.current[index] = el)}
                                     onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)}
-                                    className="form-control input"
+                                    className="form-control input small-input small-column"
                                     placeholder="Total"
                                     onChange={(e) => handleChange(index, "total", e.target.value)}
 
@@ -585,7 +626,7 @@ const Invoice = () => {
                                 />
                             </td>
                             <td>
-                                <div className="m-auto d-flex justify-content-center">
+                                <div className=" small-column">
                                     <button
                                         type="button"
                                         className='add-btn'
@@ -604,7 +645,7 @@ const Invoice = () => {
                                 </div>
                             </td>
                         </tr>
-                     ))}
+                    ))}
 
                 </tbody>
             </table>
@@ -613,7 +654,7 @@ const Invoice = () => {
                     <div className="total-item">
                         <h6>Opening Balance:</h6>
 
-                        <input type="number" name="opening_balance" id="opening_balance" readOnly />
+                        <input type="number" name="opening_balance" id="opening_balance" value={selectedCustomer?.opening_balance || 0} readOnly />
                     </div>
                     <div className="total-item">
                         <h6>Total Amount:</h6>

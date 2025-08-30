@@ -4,9 +4,9 @@ import { useLocation } from "react-router-dom";
 
 const PrintInvoice = () => {
     const location = useLocation();
-    const { customer, rows, totals, paidAmount, balanceAmount, invoiceNo, date } =
+    const { customer,customerName, rows, totals, paidAmount, balanceAmount, invoiceNo, date } =
         location.state || {};
-
+    //   const customerName = customer?.name
 
     return (
         <>
@@ -24,7 +24,7 @@ const PrintInvoice = () => {
                     <div className="billing-section">
                         <div className="section-title">Bill To</div>
                         <div className="client-details">
-                            <div>{customer?.name || ""}</div>
+                            <div>{customerName|| "Cash Sale"}</div>
                             <div>{customer?.address || ""}</div>
                             <div>{customer?.mobile || ""}</div>
                         </div>
