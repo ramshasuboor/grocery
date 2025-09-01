@@ -205,6 +205,8 @@ const Invoice = () => {
     const addBtnRef = useRef([]);
     const deleteBtnRef = useRef([]);
     const totalRef = useRef([]);
+    const printInvoiceRef = useRef([]);
+
 
 
 
@@ -671,7 +673,7 @@ const Invoice = () => {
                     <div className="total-item">
                         <h6>Amount Paid:</h6>
                         <input type="number" className='no-spinner' ref={paidRef}
-                            onKeyDown={(e) => handleKeyDown(e, customerRef, deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
+                            onKeyDown={(e) => handleKeyDown(e, printInvoiceRef,0,deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
                     </div>
                     <div className="total-item">
                         <h6>Balance Amount:</h6>
@@ -696,7 +698,7 @@ const Invoice = () => {
                 'onClick={() => {
                         console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
                         handleSaveAndPrint();
-                    }} type='button'>Print Invoice</button>
+                    }} type='button' ref={printInvoiceRef}>Print Invoice</button>
             </div>
 
         </>

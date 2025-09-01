@@ -24,7 +24,7 @@ const Sidebar = ({ collapsed }) => {
     { icon: faPills, name: "Items", link: "/items" },
     { icon: faUser, name: "Customer", link: "/customer" },
     { icon: faUserTie, name: "Supplier", link: "/supplier" },
-    { icon: faFileInvoice, name: "Invoice", link: "/invoice" },
+    // { icon: faFileInvoice, name: "Invoice", link: "/invoice" },
     { icon: faFileInvoice, name: "Invoices", link: "/invoices" },
     { icon: faShoppingCart, name: "Purchase", link: "/items" },
     { icon: faChartBar, name: "Reports", link: "/items" },

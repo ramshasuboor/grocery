@@ -1,0 +1,149 @@
+.invoice-container {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.invoice-header {
+    text-align: center;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 5px;
+}
+
+.company-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.company-details {
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.billing-section {
+    flex: 1;
+    text-align: left;
+}
+
+.date-section {
+    flex: 1;
+    text-align: right;
+}
+
+.billing-section,
+.dates-section {
+    width: 100%;
+}
+
+.section-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.client-details {
+    line-height: 1.2;
+}
+
+.date-label {
+    font-weight: bold;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.invoice-table th {
+    background-color: #eee;
+    padding: 3px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+}
+
+.invoice-table td {
+    padding: 3px;
+    border-bottom: 1px dotted #ccc;
+}
+
+.amount-column {
+    text-align: left;
+}
+
+/* ✅ Grand Total Row */
+.grand-total-row {
+    background-color: #f8f8f8;
+    border-top: 2px solid #000;
+    font-size: 15px;
+}
+
+.summary-section {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    font-size: 14px;
+}
+
+.summary-label {
+    text-align: right;
+    font-weight: bold;
+}
+
+.balance-details {
+    background-color: #eee;
+    padding: 5px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.greeting {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.term-section {
+    margin-top: 10px;
+    border-top: 1px dashed #000;
+    padding-top: 5px;
+}
+
+.term-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.print-button-container {
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #000;
+}
+
+@media print {
+    .print-button-container {
+        display: none;
+    }
+}

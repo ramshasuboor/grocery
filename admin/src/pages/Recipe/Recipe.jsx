@@ -1,10 +1,13 @@
 
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Recipe.css";
 import Select from "react-select"
+import { useNavigate } from 'react-router-dom';
+
 
 const Recipe = () => {
+  const navigate = useNavigate();
   // Static recipes (dish → required ingredients)
   const recipesByKilo = {
     biryani: [
@@ -14,13 +17,13 @@ const Recipe = () => {
       { name: "Salt", qty: 200, unit: "g" },
       { name: "Zeera", qty: 4, unit: "g" },
     ],
-    Tahari: [
+    tahari: [
       { name: "Rice", qty: 1, unit: "Kg" },
       { name: "Salt", qty: 200, unit: "g" },
       { name: "Zeera", qty: 10, unit: "g" },
       { name: "Cloves", qty: 5, unit: "g" },
     ],
-    Tawla: [
+    tawla: [
       { name: "Salt", qty: 250, unit: "g" },
       { name: "Cloves", qty: 300, unit: "g" },
       { name: "Tilli", qty: 20, unit: "g" },
@@ -36,13 +39,13 @@ const Recipe = () => {
       { name: "Salt", qty: 3, unit: "Kg" },
       { name: "Zeera", qty: 100, unit: "g" },
     ],
-    Tahari: [
+    tahari: [
       { name: "Rice", qty: 40, unit: "Kg" },
       { name: "Salt", qty: 300, unit: "g" },
       { name: "Zeera", qty: 200, unit: "g" },
       { name: "Cloves", qty: 150, unit: "g" },
     ],
-    Tawla: [
+    tawla: [
       { name: "Salt", qty: 3, unit: "Kg" },
       { name: "Cloves", qty: 60, unit: "g" },
       { name: "Tilli", qty: 240, unit: "g" },
@@ -90,15 +93,15 @@ const Recipe = () => {
 
   // Form submit
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (dish && unit) {
-      if (unit === "kg") {
-        setDishIngredients(recipesByKilo[dish] || []);
-      } else if (unit === "mann") {
-        setDishIngredients(recipesByMann[dish] || []);
-      }
+  e.preventDefault();
+  if (dish && unit) {
+    if (unit === "kg") {
+      setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
+    } else if (unit === "mann") {
+      setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
     }
-  };
+  }
+};
   // ✅ Convert qty to Kg
   const toKg = (qty, unit) => {
     return unit === "Kg" ? qty : qty / 1000;
@@ -113,6 +116,87 @@ const Recipe = () => {
     return toKg(qty, unit) * product.price * dishQty;
   };
 
+  const handleListIngredients = () => {
+  if (dish && unit) {
+    if (unit === "kg") {
+      setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
+    } else if (unit === "mann") {
+      setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
+    }
+  }
+}
+  const handlePrintInvoice = () => {
+    const now = new Date()
+    const invoiceNo = now
+      .toISOString()       // "2025-09-01T09:20:35.123Z"
+      .replace(/[-T:.Z]/g, "") // "20250901092035123"
+      .slice(2, 14);       // "250901092035"
+
+    const invoiceData = {
+      customer: {
+        _id: selectedCustomer?.value || null,
+        name: selectedCustomer?.label || "Cash Sale",
+        address: selectedCustomer?.address || "",
+        mobile: selectedCustomer?.mobile || "",
+      },
+      dish,
+      dishQty,
+      unit,
+      invoiceNo, // simple unique number
+      date: now,
+      ingredients: dishIngredients.map((item) => {
+        const product = products.find(
+          (p) => p.name.toLowerCase() === item.name.toLowerCase()
+        );
+        if (!product) {
+          console.log("❌ Product not found:", item.name);
+        } else {
+          console.log("✅ Matched Product:", product.name, " Price:", product.price);
+        }
+        const pricePerKg = product ? product.price : 0;
+        const total =
+          (item.unit === "Kg" ? item.qty : item.qty / 1000) *
+          pricePerKg *
+          dishQty;
+
+        return {
+          ...item,
+          pricePerKg,
+          total: total.toFixed(2),
+        };
+      }),
+      grandTotal: dishIngredients
+        .reduce((acc, item) => acc + calculatePrice(item.name, item.qty, item.unit), 0)
+        .toFixed(2),
+    };
+
+    navigate("/recipe-invoice", { state: invoiceData });
+  };
+
+  const customerRef = useRef(null);
+  const dishRef = useRef(null);
+  const unitRef = useRef(null);
+  const dishQtyRef = useRef(null);
+
+  const listRef = useRef(null);
+  const printRecipeRef = useRef(null);
+
+
+  // Page reload hone ke baad pehle customer input par focus
+  useEffect(() => {
+    if (customerRef.current) {
+      customerRef.current.focus();
+    }
+  }, []);
+
+
+  // Jab Enter press kare to agla input focus ho
+  const handleKeyDown = (e, nextRef) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  };
   return (
     <>
       {/* Dish selection form */}
@@ -121,27 +205,40 @@ const Recipe = () => {
           <div className="recipe-field">
             <label className="form-label">Select Customer:</label>
             <Select
+              ref={customerRef}
               className="customer-select"
               options={customers.map((c) => ({
                 value: c._id,
                 label: c.name,
+                address: c.address,
+                mobile: c.mobile,
               }))}
-              value={
-                selectedCustomer
-                  ? customers
-                    .map((c) => ({ value: c._id, label: c.name }))
-                    .find((opt) => opt.value === selectedCustomer)
-                  : null
-              }
-              onChange={(option) => setSelectedCustomer(option.value)}
+              value={selectedCustomer}
+              onChange={(option) => {
+                setSelectedCustomer(option); // customer select ho jaye
+                // enter se bhi direct dish par focus
+                setTimeout(() => {
+                  dishRef.current?.focus();
+                }, 100);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && selectedCustomer) {
+                  e.preventDefault();
+                  dishRef.current?.focus();
+                }
+              }}
               placeholder="Search or Select Customer"
               isSearchable
               required
             />
+
+
           </div>
           <div className="recipe-field">
             <label className="form-label">Select Dish:</label>
             <select
+              ref={dishRef}
+              onKeyDown={(e) => handleKeyDown(e, unitRef)}
               className="form-control small-select"
               value={dish}
               onChange={(e) => setDish(e.target.value)}
@@ -149,13 +246,15 @@ const Recipe = () => {
             >
               <option value="">-- Dish --</option>
               <option value="biryani">Biryani</option>
-              <option value="Tahari">Tahari</option>
-              <option value="Tawla">Tawla</option>
+              <option value="tahari">Tahari</option>
+              <option value="tawla">Tawla</option>
             </select>
           </div>
           <div className="recipe-field">
             <label className="form-label">Unit:</label>
             <select
+              ref={unitRef}
+              onKeyDown={(e) => handleKeyDown(e, dishQtyRef)}
               className="form-control small-select"
               value={unit}
               onChange={(e) => setUnit((e.target.value))}
@@ -169,6 +268,8 @@ const Recipe = () => {
           <div className="recipe-field">
             <label className="form-label">Dish Qty</label>
             <input
+              ref={dishQtyRef}
+              onKeyDown={(e) => handleKeyDown(e, listRef)}
               type="number"
               min="1"
               className="form-control small-input"
@@ -177,11 +278,33 @@ const Recipe = () => {
             />
           </div>
 
+          {/* <div className="recipe-field">
+            <button type="submit" className="btn btn-success" ref={listRef}
+              onKeyDown={(e) => handleKeyDown(e, printRecipeRef)}>
+              List Ingredients
+            </button>
+          </div> */}
           <div className="recipe-field">
-            <button type="submit" className="btn btn-success">
+            <button
+              type="button"
+              className="btn btn-success"
+              ref={listRef}
+              onClick={() => {
+                handleListIngredients();
+                setTimeout(() => printRecipeRef.current?.focus(), 100);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleListIngredients();
+                  setTimeout(() => printRecipeRef.current?.focus(), 100);
+                }
+              }}
+            >
               List Ingredients
             </button>
           </div>
+
         </div>
       </form>
 
@@ -237,7 +360,7 @@ const Recipe = () => {
             </tbody>
           </table>
           <div className="button-container d-flex justify-content-center mt-5">
-            <button className='btn btn-success'>Print Invoice</button>
+            <button className='btn btn-success' ref={printRecipeRef} onClick={handlePrintInvoice}>Print Invoice</button>
           </div>
         </div>
       )}
