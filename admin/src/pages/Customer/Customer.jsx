@@ -92,8 +92,9 @@ const Customer = () => {
                   <h3 className="mb-0">List of All Customers</h3>
                   <div className="ml-auto">
                     <a href="/add-customer" className="btn btn-success">
-                      <i className="fa fa-plus-circle"></i> Add New
+                      <i className="fa fa-plus-circle"></i> Add New Customer
                     </a>
+                    
                   </div>
                 </div>
               </div>

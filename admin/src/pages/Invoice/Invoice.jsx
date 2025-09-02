@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from "react-router-dom";
-// import axios from 'axios';
+import axios from 'axios';
 import "./Invoice.css"
 import Select from "react-select"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -132,7 +132,8 @@ const Invoice = () => {
             const selected = items.find((item) => item._id === value);
             if (selected) {
                 updatedRows[index].product = selected._id;
-                updatedRows[index].avgQty = selected.opening_stock || 0;
+                // updatedRows[index].avgQty = selected.opening_stock || 0;
+                updatedRows[index].avgQty = selected.closing_stock ?? selected.opening_stock ?? 0;
                 updatedRows[index].mrp = selected.price || 0;
                 updatedRows[index].quantity = 1; // default 1 qty
                 updatedRows[index].discount = 0;
@@ -338,6 +339,20 @@ const Invoice = () => {
                 // ✅ Pehle save ho gaya
                 alert("Invoice saved successfully!");
 
+
+                 for (const row of rows) {
+    await axios.patch(
+      `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
+      { quantity: row.quantity },
+      { headers: { "Content-Type": "application/json" } }
+    );
+  }
+                await updateClosingBalance(selectedCustomer?._id, balanceAmount);
+
+
+
+
+
                 // ✅ Ab print page pe navigate karo
                 handlePrintClick();
             } else {
@@ -382,6 +397,90 @@ const Invoice = () => {
         console.log("Generated Invoice No:", invoiceNo);
         setInvoiceInfo(`${invoiceNo} `);
     }, []);
+
+    // const updateClosingBalance = async(event,res,req) =>{
+    //         event.preventDefault();
+    //         try {
+    //             const payload = {
+    //                 closing_balance : 5560
+    //             }
+    //             const response = await axios.patch(
+    //     `http://localhost:4000/api/v1/customer/update/${selectedCustomer?._id}`,
+    //     payload,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+
+
+    //   if (response.data.success) {
+    //     // Navigate back to customers list after successful update
+    //     navigate("/print-invoice");
+    //   } else {
+    //     res.status(500).json({success:false,message:"error"});
+    //   }
+    //         } catch (error) {
+    //             console.log("error")
+    //         }
+    // }
+
+
+    const updateClosingBalance = async (customerId, balanceAmount) => {
+        try {
+            if (!customerId) {
+                console.log("⚠️ Cash Sale hai, koi customer update nahi hoga");
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:4000/api/v1/customer/update/${customerId}`,
+                {
+                    $inc: { closing_balance: balanceAmount }, // MongoDB increment
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.data.success) {
+                console.log("✅ Customer Closing Balance Updated");
+            } else {
+                console.error("❌ Failed to update customer closing balance", response.data);
+            }
+        } catch (error) {
+            console.error("❌ Error updating closing balance:", error);
+        }
+    };
+
+    const updateProductStock = async (rows) => {
+  try {
+    for (const row of rows) {
+      if (!row.product || !row.quantity) continue;
+
+      await axios.patch(
+        `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
+        { quantity: row.quantity },
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("✅ All product stocks updated");
+
+    // ✅ Stock update hone ke turant baad products ko refresh karo
+    const res = await fetch("http://localhost:4000/api/v1/product/all");
+    const data = await res.json();
+    setItems(data.data);  // yaha items state update hogi aur UI refresh ho jayega
+
+  } catch (error) {
+    console.error("❌ Error updating product stock:", error);
+  }
+};
+
+
 
 
     return (
@@ -656,7 +755,7 @@ const Invoice = () => {
                     <div className="total-item">
                         <h6>Opening Balance:</h6>
 
-                        <input type="number" name="opening_balance" id="opening_balance" value={selectedCustomer?.opening_balance || 0} readOnly />
+                        <input type="number" name="opening_balance" id="opening_balance" value={selectedCustomer?.closing_balance || 0} readOnly />
                     </div>
                     <div className="total-item">
                         <h6>Total Amount:</h6>
@@ -673,7 +772,7 @@ const Invoice = () => {
                     <div className="total-item">
                         <h6>Amount Paid:</h6>
                         <input type="number" className='no-spinner' ref={paidRef}
-                            onKeyDown={(e) => handleKeyDown(e, printInvoiceRef,0,deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
+                            onKeyDown={(e) => handleKeyDown(e, printInvoiceRef, 0, deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
                     </div>
                     <div className="total-item">
                         <h6>Balance Amount:</h6>
@@ -698,6 +797,7 @@ const Invoice = () => {
                 'onClick={() => {
                         console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
                         handleSaveAndPrint();
+                        updateClosingBalance();
                     }} type='button' ref={printInvoiceRef}>Print Invoice</button>
             </div>
 

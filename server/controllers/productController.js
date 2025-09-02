@@ -155,3 +155,31 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
+
+
+// controllers/productController.js
+export const updateProductStock = async (req, res) => {
+  try {
+    const { id } = req.params;      // Product ka ID
+    const { quantity } = req.body;  // Sell hui quantity
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Closing stock reduce
+    product.closing_stock = (product.closing_stock || product.opening_stock || 0) - Number(quantity);
+
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product stock updated",
+      data: product,
+    });
+  } catch (err) {
+    console.error("❌ Stock update error:", err);
+    res.status(500).json({ success: false, message: "Failed to update stock" });
+  }
+};

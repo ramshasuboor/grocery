@@ -128,15 +128,16 @@ export const addInvoice = async (req, res) => {
       invoiceNo: req.body.invoiceNo || ("INV-" + new Date().getTime()), // agar frontend se nahi aata
       date: req.body.date || new Date().toLocaleDateString(),
     });
-    console.log(req.body,"customerId")
-     
+    // console.log(req.body,"customerId")
+      // const newClosingBalance = customer. closing_balance + balanceAmount
+      // console.log(newClosingBalance,"new Closing Balance")
     await invoice.save();
 
     // populate kar do taki customer aur product ka detail aa jaye
     const populatedInvoice = await Invoice.findById(invoice._id)
       .populate("customer", "name address mobile")
       .populate("rows.product", "name unit mrp");
-
+     
     res.status(201).json({ success: true, data: populatedInvoice });
   } catch (err) {
     console.error("Error saving invoice:", err);

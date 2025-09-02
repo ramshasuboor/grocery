@@ -99,7 +99,10 @@ const Product = () => {
                   <h3 className="mb-0">List of All Items</h3>
                   <div className="ml-auto">
                     <a href="/add-item" className="btn btn-success">
-                      <i className="fa fa-plus-circle"></i> Add New
+                      <i className="fa fa-plus-circle"></i> Add New Items
+                    </a>
+                    <a href="/add-category" className="btn btn-success ml-2">
+                      <i className="fa fa-plus-circle"></i> Add New Category
                     </a>
                   </div>
                 </div>

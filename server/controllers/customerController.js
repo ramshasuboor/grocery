@@ -98,43 +98,75 @@ export const getCustomer = async (req, res) => {
   }
 };
 
+// export const updateCustomer = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const {
+//       name,
+//       email,
+//       mobile,
+//       address,
+//       city,
+//       company,
+//       opening_balance,
+//       closing_balance,
+//     } = req.body;
+
+//     const customer = await Customer.findById(id);
+
+//     // Check if customer exists
+//     if (!customer) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Customer not found",
+//       });
+//     }
+//     const updatedCustomer = await Customer.findByIdAndUpdate(
+//       id,
+//       {
+//         name,
+//         email,
+//         mobile,
+//         company,
+//         address,
+//         city,
+//         opening_balance,
+//         closing_balance,
+//       },
+//       { new: true } // Returns the updated document
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Customer updated successfully",
+//       data: updatedCustomer,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to update customer",
+//     });
+//   }
+// };
+
 export const updateCustomer = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      name,
-      email,
-      mobile,
-      address,
-      city,
-      company,
-      opening_balance,
-      closing_balance,
-    } = req.body;
+    const updateFields = req.body;
 
-    const customer = await Customer.findById(id);
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true } // updated document return karega
+    );
 
-    // Check if customer exists
-    if (!customer) {
+    if (!updatedCustomer) {
       return res.status(404).json({
         success: false,
         message: "Customer not found",
       });
     }
-    const updatedCustomer = await Customer.findByIdAndUpdate(
-      id,
-      {
-        name,
-        email,
-        mobile,
-        company,
-        address,
-        city,
-        opening_balance,
-        closing_balance,
-      },
-      { new: true } // Returns the updated document
-    );
 
     res.status(200).json({
       success: true,
@@ -146,9 +178,11 @@ export const updateCustomer = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to update customer",
+      error: error.message,
     });
   }
 };
+
 
 export const deleteCustomer = async (req, res) => {
   try {

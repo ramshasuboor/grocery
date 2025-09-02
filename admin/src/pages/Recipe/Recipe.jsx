@@ -1,21 +1,29 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import "./Recipe.css";
-import Select from "react-select"
-import { useNavigate } from 'react-router-dom';
-
+import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 
 const Recipe = () => {
   const navigate = useNavigate();
   // Static recipes (dish → required ingredients)
   const recipesByKilo = {
     biryani: [
-      { name: "Rice", qty: 1, unit: "Kg" },
-      { name: "Cloves", qty: 200, unit: "g" },
-      { name: "oil", qty: 1, unit: "kg" },
-      { name: "Salt", qty: 200, unit: "g" },
-      { name: "Zeera", qty: 4, unit: "g" },
+      { name: "चावल", qty: 1, unit: "Kg" },
+      { name: "तेल", qty: 1, unit: "Kg" },
+      { name: "नमक", qty: 1, unit: "No" },
+      { name: "बटाना दाल", qty: 200, unit: "g" },
+      { name: "लौंग", qty: 4, unit: "g" },
+      { name: "इलायची", qty: 4, unit: "g" },
+      { name: "कलमी", qty: 4, unit: "g" },
+      { name: "काली मिर्च", qty: 4, unit: "g" },
+      { name: "जीरा", qty: 4, unit: "g" },
+      { name: "शाह जीरा", qty: 2, unit: "g" },
+      { name: "जायफल", qty: 1, unit: "No" },
+      { name: "जायपत्री", qty: 1, unit: "g" },
+      { name: "धना पाउडर", qty: 10, unit: "g" },
+      { name: "मिर्च पाउडर खुला", qty: 10, unit: "g" },
+      { name: "हल्दी पाउडर खुला", qty: 10, unit: "g" },
+      { name: "चाट मशाला १०० GRM", qty: 1, unit: "No" },
     ],
     tahari: [
       { name: "Rice", qty: 1, unit: "Kg" },
@@ -28,36 +36,70 @@ const Recipe = () => {
       { name: "Cloves", qty: 300, unit: "g" },
       { name: "Tilli", qty: 20, unit: "g" },
       { name: "Shahzeera", qty: 5, unit: "g" },
-    ]
+    ],
   };
 
   const recipesByMann = {
     biryani: [
-      { name: "Rice", qty: 40, unit: "Kg" },
-      { name: "Cloves", qty: 100, unit: "g" },
-      { name: "oil", qty: 10, unit: "Kg" },
-      { name: "Salt", qty: 3, unit: "Kg" },
-      { name: "Zeera", qty: 100, unit: "g" },
+      { name: "चावल", qty: 40, unit: "Kg" },
+      { name: "तेल", qty: 10, unit: "Kg" },
+      { name: "नमक", qty: 3, unit: "No" },
+      { name: "बटाना दाल", qty: 6, unit: "Kg" },
+      { name: "लौंग", qty: 100, unit: "g" },
+      { name: "इलायची", qty: 100, unit: "g" },
+      { name: "कलमी", qty: 100, unit: "g" },
+      { name: "काली मिर्च", qty: 100, unit: "g" },
+      { name: "जीरा", qty: 100, unit: "g" },
+      { name: "शाह जीरा", qty: 25, unit: "g" },
+      { name: "जायफल", qty: 4, unit: "No" },
+      { name: "जायपत्री", qty: 20, unit: "g" },
+      { name: "रंग", qty: 10, unit: "g" },
+      { name: "केवड़ा सिंगल", qty: 1, unit: "No" },
+      { name: "धना पाउडर", qty: 375, unit: "g" },
+      { name: "मिर्च पाउडर खुला", qty: 375, unit: "g" },
+      { name: "हल्दी पाउडर खुला", qty: 250, unit: "g" },
+      { name: "चाट मशाला १०० GRM", qty: 1, unit: "No" },
+      { name: "कस्तूरी मेथी 100", qty: 1, unit: "No" },
     ],
     tahari: [
-      { name: "Rice", qty: 40, unit: "Kg" },
-      { name: "Salt", qty: 300, unit: "g" },
-      { name: "Zeera", qty: 200, unit: "g" },
-      { name: "Cloves", qty: 150, unit: "g" },
+      { name: "चावल", qty: 40, unit: "Kg" },
+      { name: "तेल", qty: 10, unit: "Kg" },
+      { name: "मिर्च पाउडर खुला", qty: 240, unit: "g" },
+      { name: "धना पाउडर", qty: 240, unit: "g" },
+      { name: "हल्दी पाउडर खुला", qty: 240, unit: "g" },
+      { name: "लौंग", qty: 60, unit: "g" },
+      { name: "इलायची", qty: 60, unit: "g" },
+      { name: "कलमी", qty: 60, unit: "g" },
+      { name: "काली मिर्च", qty: 60, unit: "g" },
+      { name: "जीरा", qty: 80, unit: "g" },
+      { name: "केवड़ा सिंगल", qty: 1, unit: "No" },
+      { name: "तेजपान", qty: 120, unit: "g" },
     ],
     tawla: [
-      { name: "Salt", qty: 3, unit: "Kg" },
-      { name: "Cloves", qty: 60, unit: "g" },
-      { name: "Tilli", qty: 240, unit: "g" },
-      { name: "Shahzeera", qty: 150, unit: "g" },
-    ]
+      { name: "जवस तेल खुला", qty: 4, unit: "Kg" },
+      { name: "राई तेल", qty: 4, unit: "Kg" },
+      { name: "धना पाउडर", qty: 2, unit: "Kg" },
+      { name: "मिर्च पाउडर खुला", qty: 800, unit: "g" },
+      { name: "हल्दी पाउडर खुला", qty: 250, unit: "g" },
+      { name: "लौंग", qty: 60, unit: "g" },
+      { name: "इलायची", qty: 60, unit: "g" },
+      { name: "कलमी", qty: 60, unit: "g" },
+      { name: "काली मिर्च", qty: 60, unit: "g" },
+      { name: "जीरा", qty: 250, unit: "g" },
+      { name: "शाह जीरा", qty: 100, unit: "g" },
+      { name: "तिल्ली सफेद", qty: 250, unit: "g" },
+      { name: "सेंगदाना लाल", qty: 250, unit: "g" },
+      { name: "खोबरा किस", qty: 250, unit: "g" },
+      { name: "मगज तरबूज", qty: 250, unit: "g" },
+      { name: "नमक", qty: 3, unit: "No" },
+    ],
   };
   const [unit, setUnit] = useState("");
   const [dish, setDish] = useState("");
   const [dishIngredients, setDishIngredients] = useState([]);
   const [products, setProducts] = useState([]);
   const [dishQty, setDishQty] = useState(1);
-  const [customers, setCustomers] = useState([]);   // ✅ all customers
+  const [customers, setCustomers] = useState([]); // ✅ all customers
   const [selectedCustomer, setSelectedCustomer] = useState(null); // ✅ selected customer
 
   // ✅ Fetch products from backend
@@ -89,19 +131,17 @@ const Recipe = () => {
     fetchCustomers();
   }, []);
 
-
-
   // Form submit
   const handleSubmit = (e) => {
-  e.preventDefault();
-  if (dish && unit) {
-    if (unit === "kg") {
-      setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
-    } else if (unit === "mann") {
-      setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
+    e.preventDefault();
+    if (dish && unit) {
+      if (unit === "kg") {
+        setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
+      } else if (unit === "mann") {
+        setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
+      }
     }
-  }
-};
+  };
   // ✅ Convert qty to Kg
   const toKg = (qty, unit) => {
     return unit === "Kg" ? qty : qty / 1000;
@@ -117,20 +157,20 @@ const Recipe = () => {
   };
 
   const handleListIngredients = () => {
-  if (dish && unit) {
-    if (unit === "kg") {
-      setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
-    } else if (unit === "mann") {
-      setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
+    if (dish && unit) {
+      if (unit === "kg") {
+        setDishIngredients(recipesByKilo[dish.toLowerCase()] || []);
+      } else if (unit === "mann") {
+        setDishIngredients(recipesByMann[dish.toLowerCase()] || []);
+      }
     }
-  }
-}
+  };
   const handlePrintInvoice = () => {
-    const now = new Date()
+    const now = new Date();
     const invoiceNo = now
-      .toISOString()       // "2025-09-01T09:20:35.123Z"
+      .toISOString() // "2025-09-01T09:20:35.123Z"
       .replace(/[-T:.Z]/g, "") // "20250901092035123"
-      .slice(2, 14);       // "250901092035"
+      .slice(2, 14); // "250901092035"
 
     const invoiceData = {
       customer: {
@@ -151,7 +191,12 @@ const Recipe = () => {
         if (!product) {
           console.log("❌ Product not found:", item.name);
         } else {
-          console.log("✅ Matched Product:", product.name, " Price:", product.price);
+          console.log(
+            "✅ Matched Product:",
+            product.name,
+            " Price:",
+            product.price
+          );
         }
         const pricePerKg = product ? product.price : 0;
         const total =
@@ -166,7 +211,10 @@ const Recipe = () => {
         };
       }),
       grandTotal: dishIngredients
-        .reduce((acc, item) => acc + calculatePrice(item.name, item.qty, item.unit), 0)
+        .reduce(
+          (acc, item) => acc + calculatePrice(item.name, item.qty, item.unit),
+          0
+        )
         .toFixed(2),
     };
 
@@ -181,14 +229,12 @@ const Recipe = () => {
   const listRef = useRef(null);
   const printRecipeRef = useRef(null);
 
-
   // Page reload hone ke baad pehle customer input par focus
   useEffect(() => {
     if (customerRef.current) {
       customerRef.current.focus();
     }
   }, []);
-
 
   // Jab Enter press kare to agla input focus ho
   const handleKeyDown = (e, nextRef) => {
@@ -231,8 +277,6 @@ const Recipe = () => {
               isSearchable
               required
             />
-
-
           </div>
           <div className="recipe-field">
             <label className="form-label">Select Dish:</label>
@@ -257,7 +301,7 @@ const Recipe = () => {
               onKeyDown={(e) => handleKeyDown(e, dishQtyRef)}
               className="form-control small-select"
               value={unit}
-              onChange={(e) => setUnit((e.target.value))}
+              onChange={(e) => setUnit(e.target.value)}
               required
             >
               <option value="">-- Unit --</option>
@@ -304,7 +348,6 @@ const Recipe = () => {
               List Ingredients
             </button>
           </div>
-
         </div>
       </form>
 
@@ -312,8 +355,8 @@ const Recipe = () => {
       {dishIngredients.length > 0 && (
         <div className="ingredients-list mt-4">
           <h5>
-            Ingredients for <strong>{dish}</strong> ({dishQty}{" "}
-            {unit === "Kg" ? "Kg" : unit})
+            Ingredients for <strong>{dish.charAt(0).toUpperCase() + dish.slice(1)}</strong> ({dishQty}{" "}
+            {unit === "kg" ? "Kg" : unit === "mann" ? "Mann" :unit})
           </h5>
           <table className="table table-bordered">
             <thead>
@@ -335,7 +378,9 @@ const Recipe = () => {
                 return (
                   <tr key={index}>
                     <td>{item.name}</td>
-                    <td>{item.qty * dishQty} {item.unit}</td>
+                    <td>
+                      {item.qty * dishQty} {item.unit}
+                    </td>
                     <td>₹{pricePerKg}</td>
                     <td>₹{total.toFixed(2)}</td>
                   </tr>
@@ -344,27 +389,35 @@ const Recipe = () => {
 
               {/* ✅ Grand Total row */}
               <tr className="table-success">
-                <td colSpan="3"><strong>Grand Total</strong></td>
+                <td colSpan="3">
+                  <strong>Grand Total</strong>
+                </td>
                 <td>
                   <strong>
                     ₹
-                    {dishIngredients.reduce((acc, item) => {
-                      return (
-                        acc +
-                        calculatePrice(item.name, item.qty, item.unit)
-                      );
-                    }, 0).toFixed(2)}
+                    {dishIngredients
+                      .reduce((acc, item) => {
+                        return (
+                          acc + calculatePrice(item.name, item.qty, item.unit)
+                        );
+                      }, 0)
+                      .toFixed(2)}
                   </strong>
                 </td>
               </tr>
             </tbody>
           </table>
           <div className="button-container d-flex justify-content-center mt-5">
-            <button className='btn btn-success' ref={printRecipeRef} onClick={handlePrintInvoice}>Print Invoice</button>
+            <button
+              className="btn btn-success"
+              ref={printRecipeRef}
+              onClick={handlePrintInvoice}
+            >
+              Print Invoice
+            </button>
           </div>
         </div>
       )}
-
     </>
   );
 };

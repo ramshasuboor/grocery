@@ -190,7 +190,7 @@ const EditProduct = () => {
                             onChange={onChangeHandler}
                             type="text"
                             name="closing_stock"
-                            value={data.opening_stock}
+                            value={data.closing_stock}
                             id="closing_stock"
                             className="form-control"
                           />

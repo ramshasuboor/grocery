@@ -45,11 +45,24 @@ const EditInvoice = () => {
                     customer: invoice.customer?._id || "",
                     invoiceNo: invoice.invoiceNo || "",
                     date: invoice.date ? new Date(invoice.date).toISOString().slice(0, 10) : "",
+                    // rows: invoice.rows.map(r => ({
+                    //     ...r,
+                    //     product: typeof r.product === "object" ? r.product._id : r.product,
+                    //     productName: typeof r.product === "object" ? r.product.name : "", // UI dikhane ke liye
+                    // })),
+                    // rows: invoice.rows.map(r => ({
+                    //     ...r,
+                    //     product: r.product && typeof r.product === "object" ? r.product._id : (r.product || ""),
+                    //     productName: r.product && typeof r.product === "object" ? r.product.name : "",
+                    // })),
                     rows: invoice.rows.map(r => ({
-                        ...r,
-                        product: typeof r.product === "object" ? r.product._id : r.product,
-                        productName: typeof r.product === "object" ? r.product.name : "", // UI dikhane ke liye
-                    })),
+  ...r,
+  product: r.product && typeof r.product === "object"
+    ? { value: r.product._id, label: r.product.name }   // react-select ka object
+    : r.product,  // fallback agar sirf id ho
+})),
+
+
                     totals: {
                         totalAmount: invoice?.totals?.totalAmount || 0,
                         totalDiscount: invoice?.totals?.totalDiscount || 0,
