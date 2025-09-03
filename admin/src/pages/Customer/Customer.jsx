@@ -178,7 +178,7 @@ const Customer = () => {
                                     deleteSupplier(customer._id);
                                   }}
                                 >
-                                  <i className="fa fa-times"></i>
+                                 <FontAwesomeIcon icon={faTrashAlt} />
                                 </a>
                               </td>
                             </tr>

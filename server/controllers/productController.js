@@ -157,7 +157,7 @@ export const deleteProduct = async (req, res) => {
 };
 
 
-// controllers/productController.js
+
 export const updateProductStock = async (req, res) => {
   try {
     const { id } = req.params;      // Product ka ID

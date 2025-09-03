@@ -47,6 +47,22 @@ const Invoice = () => {
 
     const handlePaidChange = (e) => {
         const value = e.target.value;
+        let val = e.target.value;
+
+        // 🔹 Replace Hindi/Devnagari digits with English
+        const devnagariDigits = "०१२३४५६७८९";
+        val = val.replace(/[०-९]/g, (d) => devnagariDigits.indexOf(d));
+
+        // 🔹 Replace Hindi danda "।" with dot
+        val = val.replace(/।/g, ".");
+
+        // 🔹 Remove sab letters, sirf 0-9 aur dot rakho
+        val = val.replace(/[^0-9.]/g, "");
+
+        // 🔹 Sirf ek dot allow karo
+        if ((val.match(/\./g) || []).length > 1) {
+            val = val.substring(0, val.length - 1);
+        }
 
         // Agar user input khali kare to empty string hi rakho
         if (value === "") {
@@ -55,7 +71,7 @@ const Invoice = () => {
         }
 
         const paid = parseFloat(value) || 0;
-        setPaidAmount(paid);
+        setPaidAmount(val);
     };
 
 
@@ -140,6 +156,15 @@ const Invoice = () => {
                 updatedRows[index].unit = selected.unit;  // ✅ Yaha unit assign karenge
             }
         }
+         if (field === "quantity") {
+    const availableStock = parseFloat(updatedRows[index].avgQty) || 0;
+    const enteredQty = parseFloat(value) || 0;
+
+    if (enteredQty > availableStock) {
+      alert(`❌ Only ${availableStock} ${updatedRows[index].unit || ""} available in stock`);
+      updatedRows[index].quantity = availableStock; // max available tak hi allow
+    }
+  }
 
         const qty = parseFloat(updatedRows[index].quantity) || 0;
         const price = parseFloat(updatedRows[index].mrp) || 0;
@@ -337,16 +362,16 @@ const Invoice = () => {
 
             if (result.success) {
                 // ✅ Pehle save ho gaya
-                alert("Invoice saved successfully!");
+                // alert("Invoice saved successfully!");
 
 
-                 for (const row of rows) {
-    await axios.patch(
-      `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
-      { quantity: row.quantity },
-      { headers: { "Content-Type": "application/json" } }
-    );
-  }
+                for (const row of rows) {
+                    await axios.patch(
+                        `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
+                        { quantity: row.quantity },
+                        { headers: { "Content-Type": "application/json" } }
+                    );
+                }
                 await updateClosingBalance(selectedCustomer?._id, balanceAmount);
 
 
@@ -457,28 +482,28 @@ const Invoice = () => {
     };
 
     const updateProductStock = async (rows) => {
-  try {
-    for (const row of rows) {
-      if (!row.product || !row.quantity) continue;
+        try {
+            for (const row of rows) {
+                if (!row.product || !row.quantity) continue;
 
-      await axios.patch(
-        `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
-        { quantity: row.quantity },
-        { headers: { "Content-Type": "application/json" } }
-      );
-    }
+                await axios.patch(
+                    `http://localhost:4000/api/v1/product/update-stock/${row.product}`,
+                    { quantity: row.quantity },
+                    { headers: { "Content-Type": "application/json" } }
+                );
+            }
 
-    console.log("✅ All product stocks updated");
+            console.log("✅ All product stocks updated");
 
-    // ✅ Stock update hone ke turant baad products ko refresh karo
-    const res = await fetch("http://localhost:4000/api/v1/product/all");
-    const data = await res.json();
-    setItems(data.data);  // yaha items state update hogi aur UI refresh ho jayega
+            // ✅ Stock update hone ke turant baad products ko refresh karo
+            const res = await fetch("http://localhost:4000/api/v1/product/all");
+            const data = await res.json();
+            setItems(data.data);  // yaha items state update hogi aur UI refresh ho jayega
 
-  } catch (error) {
-    console.error("❌ Error updating product stock:", error);
-  }
-};
+        } catch (error) {
+            console.error("❌ Error updating product stock:", error);
+        }
+    };
 
 
 
@@ -659,12 +684,80 @@ const Invoice = () => {
                                 />
                             </td>
                             <td>
-                                <input
-                                    type="number"
+                                {/* <input
+                                    type="text"
+                                    // inputMode='numeric'
+                                    inputMode="numeric"               // 👈 mobile pe bhi number keyboard aayega
+                                     pattern="[0-9]*[.]?[0-9]*"
                                     value={row.quantity}
-                                    onChange={(e) =>
-                                        handleChange(index, "quantity", e.target.value)
-                                    }
+                                    // onChange={(e) =>
+                                    //     handleChange(index, "quantity", e.target.value)
+                                    // }
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        // ✅ Sirf digits allow karo
+                                        if(/^\d*\.?\d*$/.test(val) || val === "")  {
+                                            handleChange(index, "quantity", val);
+                                        }
+                                    }}
+                                    name="quantity"
+                                    className="form-control input small-input small-column"
+                                    placeholder="Quantity"
+                                    data-index={index}
+                                    ref={(el) => (qtyRef.current[index] = el)}
+                                    onKeyDown={(e) => handleKeyDown(e, totalRef, index, productRef)}
+                                    required
+                                /> */}
+
+                                {/* <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={row.quantity}
+                                    onChange={(e) => {
+                                        let val = e.target.value;
+                                        // ✅ sirf English numbers aur ek dot allow karo
+                                        val = val.replace(/[^0-9.]/g, "");
+                                        // ✅ multiple dots avoid karo
+                                        // if ((val.match(/\./g) || []).length > 1) {
+                                        //     return;
+                                        // }
+                                         if ((val.match(/\./g) || []).length > 1) {
+      val = val.substring(0, val.length - 1);
+    }
+                                        handleChange(index, "quantity", val);
+                                    }}
+                                    name="quantity"
+                                    className="form-control input small-input small-column"
+                                    placeholder="Quantity"
+                                    data-index={index}
+                                    ref={(el) => (qtyRef.current[index] = el)}
+                                    onKeyDown={(e) => handleKeyDown(e, totalRef, index, productRef)}
+                                    required
+                                /> */}
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={row.quantity}
+                                    onChange={(e) => {
+                                        let val = e.target.value;
+
+                                        // 🔹 Replace Hindi/Devnagari digits with English
+                                        const devnagariDigits = "०१२३४५६७८९";
+                                        val = val.replace(/[०-९]/g, (d) => devnagariDigits.indexOf(d));
+
+                                        // 🔹 Replace Hindi danda "।" with dot
+                                        val = val.replace(/।/g, ".");
+
+                                        // 🔹 Remove sab letters, sirf 0-9 aur dot rakho
+                                        val = val.replace(/[^0-9.]/g, "");
+
+                                        // 🔹 Sirf ek dot allow karo
+                                        if ((val.match(/\./g) || []).length > 1) {
+                                            val = val.substring(0, val.length - 1);
+                                        }
+
+                                        handleChange(index, "quantity", val);
+                                    }}
                                     name="quantity"
                                     className="form-control input small-input small-column"
                                     placeholder="Quantity"
@@ -673,6 +766,7 @@ const Invoice = () => {
                                     onKeyDown={(e) => handleKeyDown(e, totalRef, index, productRef)}
                                     required
                                 />
+
                             </td>
                             <td>
                                 <input
@@ -771,13 +865,27 @@ const Invoice = () => {
                     </div>
                     <div className="total-item">
                         <h6>Amount Paid:</h6>
-                        <input type="number" className='no-spinner' ref={paidRef}
-                            onKeyDown={(e) => handleKeyDown(e, printInvoiceRef, 0, deleteBtnRef)} step={0.01} value={paidAmount} onChange={handlePaidChange} name="paid_amount" id="paid_amount" />
+                        <input type="text" className='no-spinner' ref={paidRef}
+                            onKeyDown={(e) => handleKeyDown(e, printInvoiceRef, 0, deleteBtnRef)}
+                            step={0.01} value={paidAmount}
+                            onChange={handlePaidChange}
+                            name="paid_amount"
+                            id="paid_amount"
+                        />
                     </div>
                     <div className="total-item">
                         <h6>Balance Amount:</h6>
                         <input type="number" value={balanceAmount || 0} name="balance_amount" id="balance_amount" readOnly />
                     </div>
+                                <div className="total-item">
+                {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
+                <button className='btn btn-success align-self-start 
+                'onClick={() => {
+                        console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
+                        handleSaveAndPrint();
+                        updateClosingBalance();
+                    }} type='button' ref={printInvoiceRef}>Print Invoice</button>
+            </div>
                 </div>
                 {/* <div className="total-second-row mt-3">
                     <div className="total-item">
@@ -791,15 +899,7 @@ const Invoice = () => {
                     </div>
                 </div> */}
             </div>
-            <div className="button d-flex flex-column mt-5 mb-5">
-                {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
-                <button className='btn btn-success align-self-start 
-                'onClick={() => {
-                        console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
-                        handleSaveAndPrint();
-                        updateClosingBalance();
-                    }} type='button' ref={printInvoiceRef}>Print Invoice</button>
-            </div>
+
 
         </>
     )

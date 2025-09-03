@@ -1,12 +1,58 @@
-// import React, { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import "./PrintInvoice.css"
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 
 const PrintInvoice = () => {
+     const navigate = useNavigate();
     const location = useLocation();
     const { customer,customerName, rows, totals, paidAmount, balanceAmount, invoiceNo, date } =
         location.state || {};
-    //   const customerName = customer?.name
+
+
+// useEffect(() => {
+//   const mediaQueryList = window.matchMedia('print');
+
+//   const handler = (mql) => {
+//     if (!mql.matches) {
+//       // Jab print dialog close hoga (print ya cancel dono case me)
+//       navigate("/invoices", { replace: true });
+//     }
+//   };
+
+//   mediaQueryList.addEventListener("change", handler);
+
+//   window.print();
+
+//   return () => {
+//     mediaQueryList.removeEventListener("change", handler);
+//   };
+// }, [navigate]);
+
+useEffect(() => {
+  let fallbackTimer;
+
+  const handleAfterPrint = () => {
+    clearTimeout(fallbackTimer);
+    navigate("/invoices", { replace: true });
+  };
+
+  // Browser support kare to chalega
+  window.onafterprint = handleAfterPrint;
+
+  // Fallback timer (agar onafterprint fire na ho)
+  fallbackTimer = setTimeout(() => {
+    navigate("/invoices", { replace: true });
+  }, 800); // thoda chhota bhi kar sakte ho (500ms)
+
+  // Print dialog open karo
+  window.print();
+
+  return () => {
+    clearTimeout(fallbackTimer);
+    window.onafterprint = null;
+  };
+}, [navigate]);
+
 
     return (
         <>
@@ -98,9 +144,9 @@ const PrintInvoice = () => {
                        कृपया काउंटर छोड़ने से पहले हर समय जांच कर लें।
                     </div>
                 </div> */}
-                <div className="print-button-container">
+                {/* <div className="print-button-container">
                     <button className='btn btn-success' onClick={() => window.print()}>Print Invoice</button>
-                </div>
+                </div> */}
             </div>
         </>
     )

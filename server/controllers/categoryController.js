@@ -4,9 +4,10 @@ export const addCategory = async (req, res) => {
     try {
         const {
             category_name,
-            category_image,
+           
             description
         } = req.body
+         const  category_image = req.file ? req.file.filename : null
 
         const newCategory = await Category.create({
             category_name,
@@ -66,6 +67,20 @@ export const getCategory = async (req, res) => {
 
 export const updateCategory = async(req,res)=>{
       try {
+        const existingCategory = await Category.findById(req.params.id)
+        if(!existingCategory){
+            return res.status(404).json({message:"category not found"});
+        }
+        if(req.file){
+            if(existingCategory.category_image){
+                 const oldImgPath = path.join( "./uploads",existingCategory.category_image)
+            fs.unlink(oldImgPath,(err)=>{
+                if(err) console.log("failed to delete old image:",err)
+            });
+            }
+            req.body.image = req.file.filename;
+        }
+
         const { id } = req.params;
         const { category_name,category_image,description } = req.body;
     
@@ -114,6 +129,12 @@ export const deleteCategory = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
+     if(category.category_image){
+                            const filePath = path.join( "./uploads",category_image)
+                            fs.unlink(filePath,(err)=>{
+                                if(err) console.log("failed to delete:",err)
+                            });
+                        }
     await category.deleteOne();
     res.status(200).json({
       success: true,
