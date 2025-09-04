@@ -1,16 +1,40 @@
-.reverse-calculation label {
-    font-weight: 700;
+.large {
+  min-width: 300px; 
+  flex: 2;        
+  font-size: 16px;
+  font-weight: 400;  
 }
 
-.reverse-calculation input,
-.reverse-calculation select {
-    background-color: #fff;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    align-items: center;
-    font-weight: 400;
+.custom-select__control {
+  height: 40px !important; 
+  border-radius: 6px !important;
+  font-size: 16px;
 }
 
+.small {
+  min-width: 120px;
+  flex: 1;
+  height: 40px;
+  font-size: 16px;
+  padding: 6px 10px;
+}
+label{
+  font-weight: 700;
+}
+
+.form-control {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.2s ease;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.form-control:focus,
+.custom-select__control--is-focused {
+  border-color: #007bff !important;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+}
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -20,4 +44,4 @@ input[type=number]::-webkit-inner-spin-button {
 /* Firefox ke liye */
 input[type=number] {
   -moz-appearance: textfield;
-}
+} 

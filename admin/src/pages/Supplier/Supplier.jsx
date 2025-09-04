@@ -167,14 +167,16 @@ const Supplier = () => {
                                   className="btn btn-sm btn-circle btn-outline-info mr-1"
                                   title="Show"
                                 >
-                                  <i className="fa fa-eye"></i>
+                                  <FontAwesomeIcon icon={faEye} />
+
                                 </Link>
                                 <Link
                                   to={`/edit-supplier/${supplier._id}`}
                                   className="btn btn-sm btn-circle btn-outline-secondary mr-1"
                                   title="Edit"
                                 >
-                                  <i className="fa fa-edit"></i>
+                                  <FontAwesomeIcon icon={faEdit} />
+
                                 </Link>
                                 <a
                                   href="#"
@@ -185,7 +187,8 @@ const Supplier = () => {
                                     deleteSupplier(supplier._id);
                                   }}
                                 >
-                                  <i className="fa fa-times"></i>
+                                  <FontAwesomeIcon icon={faTrashAlt} />
+
                                 </a>
                               </td>
                             </tr>
@@ -220,9 +223,8 @@ const Supplier = () => {
                       <nav aria-label="Page navigation">
                         <ul className="pagination justify-content-end mt-3">
                           <li
-                            className={`page-item ${
-                              !pagination.hasPrevPage ? "disabled" : ""
-                            }`}
+                            className={`page-item ${!pagination.hasPrevPage ? "disabled" : ""
+                              }`}
                           >
                             <a
                               className="page-link"
@@ -244,9 +246,8 @@ const Supplier = () => {
                           ).map((page) => (
                             <li
                               key={page}
-                              className={`page-item ${
-                                page === currentPage ? "active" : ""
-                              }`}
+                              className={`page-item ${page === currentPage ? "active" : ""
+                                }`}
                             >
                               <a
                                 className="page-link"
@@ -262,9 +263,8 @@ const Supplier = () => {
                           ))}
 
                           <li
-                            className={`page-item ${
-                              !pagination.hasNextPage ? "disabled" : ""
-                            }`}
+                            className={`page-item ${!pagination.hasNextPage ? "disabled" : ""
+                              }`}
                           >
                             <a
                               className="page-link"

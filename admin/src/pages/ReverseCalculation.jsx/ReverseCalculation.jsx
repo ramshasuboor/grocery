@@ -1,11 +1,13 @@
 import React from 'react'
 import "./ReverseCalculation.css"
 import { useState, useEffect } from 'react';
+import Select from "react-select"
+import { useRef } from 'react';
 
 const ReverseCalculation = () => {
 
     const [items, setItems] = useState([]);
-    const [selectedItems, setSelectedItems] = useState([null])
+    const [selectedItems, setSelectedItems] = useState(null)
     const [form, setForm] = useState({
         amount: "",
         quantity: "",
@@ -45,6 +47,16 @@ const ReverseCalculation = () => {
         setForm(updatedForm);
     };
 
+    const selectRef = useRef(null)
+    const amountRef = useRef(null)
+
+
+    useEffect(() => {
+        if (selectRef.current) {
+            selectRef.current.focus();
+        }
+    }, []);
+    
     return (
         <>
             <form action="">
@@ -52,33 +64,78 @@ const ReverseCalculation = () => {
                     <div className="form-row">
                         <div className="col-md">
                             <label htmlFor="item" className='form-label'>Items:</label>
-                            <select name="item" id="item" className='form-control'
-                                onChange={handleItemChange}
-                            >
-                                <option value="">-----Select-----</option>
-                                {items.map((item) => (
-                                    <option key={item._id} value={item._id}>
-                                        {item.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <Select
+                                id="item"
+                                className='large'
+                                classNamePrefix="custom-select"
+                                ref={selectRef}
+                                options={items.map((item) => ({
+                                    value: item._id,
+                                    label: item.name,
+                                }))}
+                                value={
+                                    selectedItems
+                                        ? { value: selectedItems._id, label: selectedItems.name }
+                                        : null
+                                }
+                                onChange={(option) => {
+                                    const item = items.find((i) => i._id === option.value);
+                                    setSelectedItems(item || null);
+                                    if (amountRef.current) {
+                                        amountRef.current.focus();
+                                    }
+                                }}
+                                placeholder="Search or Select Item"
+                                isSearchable
+                            />
+
                         </div>
                         <div className="col-md">
                             <label htmlFor="price">Price:</label>
-                            <input type="number" name='price' placeholder='Price' className='form-control' value={selectedItems?.price || ""} />
+                            <input type="number" name='price'  placeholder='Price' className='form-control small' value={selectedItems?.price || ""} />
                         </div>
                         <div className="col-md">
                             <label htmlFor="unit">Unit:</label>
-                            <input type="text" name='unit' placeholder='Unit'  className='form-control' value={selectedItems?.unit || ""} />
+                            <input type="text" name='unit'   placeholder='Unit' className='form-control small' value={selectedItems?.unit || ""} />
                         </div>
                         <div className="col-md">
                             <label htmlFor="price">Amount:</label>
-                            <input type="number" name='amount' placeholder='Amount' className='form-control' value={form.amount}
-                                onChange={handleChange} />
+                            {/* <input type="number" name='amount' placeholder='Amount' className='form-control' value={form.amount}
+                                onChange={handleChange} /> */}
+                            <input
+                                type="text" // ✅ "number" ke jagah text
+                                inputMode="decimal" // ✅ mobile pe number keypad
+                                name="amount" 
+                                ref={amountRef}
+                                placeholder="Amount"
+                                className="form-control small"
+                                value={form.amount}
+                                onChange={(e) => {
+                                    let val = e.target.value;
+
+                                    // 🔹 Replace Hindi/Devnagari digits with English
+                                    const devnagariDigits = "०१२३४५६७८९";
+                                    val = val.replace(/[०-९]/g, (d) => devnagariDigits.indexOf(d));
+
+                                    // 🔹 Replace Hindi danda "।" with dot
+                                    val = val.replace(/।/g, ".");
+
+                                    // 🔹 Remove sab letters, sirf 0-9 aur dot rakho
+                                    val = val.replace(/[^0-9.]/g, "");
+
+                                    // 🔹 Sirf ek dot allow karo
+                                    if ((val.match(/\./g) || []).length > 1) {
+                                        val = val.substring(0, val.length - 1);
+                                    }
+
+                                    handleChange({ target: { name: "amount", value: val } });
+                                }}
+                            />
+
                         </div>
                         <div className="col-md">
                             <label htmlFor="price">Quantity:</label>
-                            <input type="number" name='Quantity' placeholder='Quantity' className='form-control' value={form.quantity}
+                            <input type="number" name='Quantity'   placeholder='Quantity' className='form-control small' value={form.quantity}
                                 onChange={handleChange} />
                         </div>
                     </div>

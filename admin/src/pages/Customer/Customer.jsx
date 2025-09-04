@@ -160,14 +160,14 @@ const Customer = () => {
                                   className="btn btn-sm btn-circle btn-outline-info mr-1"
                                   title="Show"
                                 >
-                                  <i className="fa fa-eye"></i>
+                                 <FontAwesomeIcon icon={faEye} />
                                 </Link>
                                 <Link
                                   to={`/edit-customer/${customer._id}`}
                                   className="btn btn-sm btn-circle btn-outline-secondary mr-1"
                                   title="Edit"
                                 >
-                                  <i className="fa fa-edit"></i>
+                                  <FontAwesomeIcon icon={faEdit} />
                                 </Link>
                                 <a
                                   href="#"

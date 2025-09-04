@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
+
 // import axios from "axios";
 
 const Invoice = () => {
@@ -35,32 +38,34 @@ const Invoice = () => {
 
 
 
-const fetchInvoices = async (page = 1, limit = 10, search = "") => {
-  try {
-    const response = await fetch(
-      `http://localhost:4000/api/v1/invoice/all?page=${page}&limit=${limit}&search=${search}`,
-      {
-        method: "GET",
-      }
-    )
+  const fetchInvoices = async (page = 1, limit = 10, search = "") => {
+    try {
+          console.log(`API Call: /invoice/all?page=${page}&limit=${limit}&search=${search}`);
+
+      const response = await fetch(
+        `http://localhost:4000/api/v1/invoice/all?page=${page}&limit=${limit}&search=${search}`,
+        {
+          method: "GET",
+        }
+      )
       const result = await response.json();
-    console.log("Invoice API Response:", result);
+      console.log("Invoice API Response:", result);
 
-    // Agar sirf data array aata hai
-    setInvoices(result.data || []);
+      // Agar sirf data array aata hai
+      setInvoices(result.data || []);
 
 
-   setPagination(result.pagination || {});
-  //  setTotalPages(result.pagination?.pages || 1);
+      setPagination(result.pagination || {});
+      //  setTotalPages(result.pagination?.pages || 1);
 
-    setTotalPages(1);
-    setLoading(false);
-  } catch (error) {
-    console.error("Error fetching invoices", error);
-    setError("Failed to fetch invoices");
-    setLoading(false);
-  }
-};
+      setTotalPages(1);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching invoices", error);
+      setError("Failed to fetch invoices");
+      setLoading(false);
+    }
+  };
 
   // Delete invoice
   const deleteInvoice = async (invoiceId) => {
@@ -68,13 +73,13 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
       return;
     }
     try {
-     const response = await fetch(
-      `http://localhost:4000/api/v1/invoice/delete/${invoiceId}`,
-      {
-        method: "DELETE",
-      }
-    );
-    const result = await response.json()
+      const response = await fetch(
+        `http://localhost:4000/api/v1/invoice/delete/${invoiceId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const result = await response.json()
       if (result.success) {
         console.log("Invoice deleted.");
         fetchInvoices();
@@ -91,7 +96,7 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchInvoices(1, limit, searchTerm);
+    // fetchInvoices(1, limit, searchTerm);
   };
 
   const handleLimitChange = (e) => {
@@ -126,7 +131,9 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                       className="form-control"
                       placeholder="Search invoices..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) =>{ setSearchTerm(e.target.value)
+                        setCurrentPage(1)
+                      }}
                     />
                   </div>
                   <div className="col-auto">
@@ -178,18 +185,21 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                                 to={`/show-invoice/${invoice._id}`}
                                 onClick={(e) => {
                                   e.preventDefault()
-                                  handleShowInvoice(invoice)}}
+                                  handleShowInvoice(invoice)
+                                }}
                                 className="btn btn-sm btn-circle btn-outline-info mr-1"
                                 title="Show"
                               >
-                                <i className="fa fa-eye"></i>
+                                <FontAwesomeIcon icon={faEye} />
+
                               </Link>
                               <Link
                                 to={`/edit-invoice/${invoice._id}`}
                                 className="btn btn-sm btn-circle btn-outline-secondary mr-1"
                                 title="Edit"
                               >
-                                <i className="fa fa-edit"></i>
+                                <FontAwesomeIcon icon={faEdit} />
+
                               </Link>
                               <a
                                 href="#"
@@ -200,7 +210,8 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                                   deleteInvoice(invoice._id);
                                 }}
                               >
-                                <i className="fa fa-times"></i>
+                                <FontAwesomeIcon icon={faTrashAlt} />
+
                               </a>
                             </td>
                           </tr>
@@ -235,9 +246,8 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                     <nav aria-label="Page navigation">
                       <ul className="pagination justify-content-end mt-3">
                         <li
-                          className={`page-item ${
-                            !pagination.hasPrevPage ? "disabled" : ""
-                          }`}
+                          className={`page-item ${!pagination.hasPrevPage ? "disabled" : ""
+                            }`}
                         >
                           <a
                             className="page-link"
@@ -258,9 +268,8 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                         ).map((page) => (
                           <li
                             key={page}
-                            className={`page-item ${
-                              page === currentPage ? "active" : ""
-                            }`}
+                            className={`page-item ${page === currentPage ? "active" : ""
+                              }`}
                           >
                             <a
                               className="page-link"
@@ -276,9 +285,8 @@ const fetchInvoices = async (page = 1, limit = 10, search = "") => {
                         ))}
 
                         <li
-                          className={`page-item ${
-                            !pagination.hasNextPage ? "disabled" : ""
-                          }`}
+                          className={`page-item ${!pagination.hasNextPage ? "disabled" : ""
+                            }`}
                         >
                           <a
                             className="page-link"

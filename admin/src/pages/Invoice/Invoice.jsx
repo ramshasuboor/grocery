@@ -156,15 +156,15 @@ const Invoice = () => {
                 updatedRows[index].unit = selected.unit;  // ✅ Yaha unit assign karenge
             }
         }
-         if (field === "quantity") {
-    const availableStock = parseFloat(updatedRows[index].avgQty) || 0;
-    const enteredQty = parseFloat(value) || 0;
+        if (field === "quantity") {
+            const availableStock = parseFloat(updatedRows[index].avgQty) || 0;
+            const enteredQty = parseFloat(value) || 0;
 
-    if (enteredQty > availableStock) {
-      alert(`❌ Only ${availableStock} ${updatedRows[index].unit || ""} available in stock`);
-      updatedRows[index].quantity = availableStock; // max available tak hi allow
-    }
-  }
+            if (enteredQty > availableStock) {
+                alert(`❌ Only ${availableStock} ${updatedRows[index].unit || ""} available in stock`);
+                updatedRows[index].quantity = availableStock; // max available tak hi allow
+            }
+        }
 
         const qty = parseFloat(updatedRows[index].quantity) || 0;
         const price = parseFloat(updatedRows[index].mrp) || 0;
@@ -808,17 +808,38 @@ const Invoice = () => {
                             </td> */}
                             <td>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="decimal"
                                     value={row.total}
+                                    onChange={(e) => {
+                                        let val = e.target.value;
+
+                                        // 🔹 Replace Hindi/Devnagari digits with English
+                                        const devnagariDigits = "०१२३४५६७८९";
+                                        val = val.replace(/[०-९]/g, (d) => devnagariDigits.indexOf(d));
+
+                                        // 🔹 Replace Hindi danda "।" with dot
+                                        val = val.replace(/।/g, ".");
+
+                                        // 🔹 Remove sab letters, sirf 0-9 aur dot rakho
+                                        val = val.replace(/[^0-9.]/g, "");
+
+                                        // 🔹 Sirf ek dot allow karo
+                                        if ((val.match(/\./g) || []).length > 1) {
+                                            val = val.substring(0, val.length - 1);
+                                        }
+
+                                        handleChange(index, "total", val);
+                                    }}
                                     name="total"
-                                    ref={(el) => (totalRef.current[index] = el)}
-                                    onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)}
                                     className="form-control input small-input small-column"
                                     placeholder="Total"
-                                    onChange={(e) => handleChange(index, "total", e.target.value)}
-
+                                    data-index={index}
+                                    ref={(el) => (totalRef.current[index] = el)}
+                                    onKeyDown={(e) => handleKeyDown(e, addBtnRef, index, qtyRef)} // ✅ next focus ke liye adjust
                                     required
                                 />
+
                             </td>
                             <td>
                                 <div className=" small-column">
@@ -877,15 +898,14 @@ const Invoice = () => {
                         <h6>Balance Amount:</h6>
                         <input type="number" value={balanceAmount || 0} name="balance_amount" id="balance_amount" readOnly />
                     </div>
-                                <div className="total-item">
-                {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
-                <button className='btn btn-success align-self-start 
+                    <div className="total-item">
+                        {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
+                        <button className='btn btn-success align-self-start 
                 'onClick={() => {
-                        console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
-                        handleSaveAndPrint();
-                        updateClosingBalance();
-                    }} type='button' ref={printInvoiceRef}>Print Invoice</button>
-            </div>
+                                console.log("🟢 Button Clicked");  // yeh hamesha aana chahiye
+                                handleSaveAndPrint();
+                            }} type='button' ref={printInvoiceRef}>Print Invoice</button>
+                    </div>
                 </div>
                 {/* <div className="total-second-row mt-3">
                     <div className="total-item">

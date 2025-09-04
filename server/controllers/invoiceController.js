@@ -43,13 +43,18 @@ export const addInvoice = async (req, res) => {
   }
 };
 
-
+//  get all invoices
 export const getInvoices = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = "" } = req.query;
 
     const query = search
-      ? { "customer.name": { $regex: search, $options: "i" } }
+      ? {
+          $or: [
+            { invoiceNo: { $regex: search, $options: "i" } },
+            { customerName: { $regex: search, $options: "i" } }
+          ]
+        }
       : {};
 
     const invoices = await Invoice.find(query)
@@ -59,25 +64,24 @@ export const getInvoices = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
+    const total = await Invoice.countDocuments(query);
 
-console.log("📌 Found invoices:", invoices.length);
-const total = await Invoice.countDocuments(query);
-
-res.status(200).json({
-  success: true,
-  data: invoices,
-  pagination: {
-    total,
-    page: Number(page),
-    pages: Math.ceil(total / limit),
-    hasNextPage: page * limit < total,
-    hasPrevPage: page > 1,
-  },
-});
+    res.status(200).json({
+      success: true,
+      data: invoices,
+      pagination: {
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
-  res.status(500).json({ success: false, message: error.message });
-}
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
+
 
 
 

@@ -314,12 +314,32 @@ const Recipe = () => {
             <input
               ref={dishQtyRef}
               onKeyDown={(e) => handleKeyDown(e, listRef)}
-              type="number"
-              min="1"
+              type="text"
+              inputMode="decimal"
               className="form-control small-input"
               value={dishQty}
-              onChange={(e) => setDishQty(Number(e.target.value))}
+              onChange={(e) => {
+                let val = e.target.value;
+
+                // 🔹 Replace Hindi/Devnagari digits with English
+                const devnagariDigits = "०१२३४५६७८९";
+                val = val.replace(/[०-९]/g, (d) => devnagariDigits.indexOf(d));
+
+                // 🔹 Replace Hindi danda "।" with dot
+                val = val.replace(/।/g, ".");
+
+                // 🔹 Remove sab letters, sirf 0-9 aur dot rakho
+                val = val.replace(/[^0-9.]/g, "");
+
+                // 🔹 Sirf ek dot allow karo
+                if ((val.match(/\./g) || []).length > 1) {
+                  val = val.substring(0, val.length - 1);
+                }
+
+                setDishQty(val);
+              }}
             />
+
           </div>
 
           {/* <div className="recipe-field">
@@ -356,7 +376,7 @@ const Recipe = () => {
         <div className="ingredients-list mt-4">
           <h5>
             Ingredients for <strong>{dish.charAt(0).toUpperCase() + dish.slice(1)}</strong> ({dishQty}{" "}
-            {unit === "kg" ? "Kg" : unit === "mann" ? "Mann" :unit})
+            {unit === "kg" ? "Kg" : unit === "mann" ? "Mann" : unit})
           </h5>
           <table className="table table-bordered">
             <thead>

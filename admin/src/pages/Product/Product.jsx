@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Medicine.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faTrashAlt,faEdit } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -171,14 +171,16 @@ const Product = () => {
                                   className="btn btn-sm btn-circle btn-outline-info mr-1"
                                   title="Show"
                                 >
-                                  <i className="fa fa-eye"></i>
+                                  <FontAwesomeIcon icon={faEye} />
+
                                 </Link>
                                 <Link
                                   to={`/edit-item/${product._id}`}
                                   className="btn btn-sm btn-circle btn-outline-secondary mr-1"
                                   title="Edit"
                                 >
-                                  <i className="fa fa-edit"></i>
+                                  <FontAwesomeIcon icon={faEdit} />
+
                                 </Link>
                                 <a
                                   href="#"
@@ -189,7 +191,8 @@ const Product = () => {
                                     deleteProduct(product._id);
                                   }}
                                 >
-                                  <i className="fa fa-times"></i>
+                                  <FontAwesomeIcon icon={faTrashAlt} />
+
                                 </a>
                               </td>
                             </tr>
@@ -224,9 +227,8 @@ const Product = () => {
                       <nav aria-label="Page navigation">
                         <ul className="pagination justify-content-end mt-3">
                           <li
-                            className={`page-item ${
-                              !pagination.hasPrevPage ? "disabled" : ""
-                            }`}
+                            className={`page-item ${!pagination.hasPrevPage ? "disabled" : ""
+                              }`}
                           >
                             <a
                               className="page-link"
@@ -248,9 +250,8 @@ const Product = () => {
                           ).map((page) => (
                             <li
                               key={page}
-                              className={`page-item ${
-                                page === currentPage ? "active" : ""
-                              }`}
+                              className={`page-item ${page === currentPage ? "active" : ""
+                                }`}
                             >
                               <a
                                 className="page-link"
@@ -266,9 +267,8 @@ const Product = () => {
                           ))}
 
                           <li
-                            className={`page-item ${
-                              !pagination.hasNextPage ? "disabled" : ""
-                            }`}
+                            className={`page-item ${!pagination.hasNextPage ? "disabled" : ""
+                              }`}
                           >
                             <a
                               className="page-link"

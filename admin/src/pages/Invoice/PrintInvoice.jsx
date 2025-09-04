@@ -128,6 +128,7 @@ useEffect(() => {
                         <div className="summary-value">{totals?.grossTotal}</div>
                     </div> */}
                 </div>
+                
                 <div className="balance-details">
                     <div>Paid Amount ₹</div>
                     <div>{paidAmount}</div>
