@@ -9,12 +9,78 @@ const Invoice = () => {
 
   const navigate = useNavigate();
 
-  const handleShowInvoice = (invoice) => {
-    navigate(`/show-invoice/${invoice._id}`);
-  };
+  // const handleShowInvoice = (invoice) => {
+  //   navigate(`/show-invoice/${invoice._id}`);
+  // };
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // const handleShowInvoice = (invoice) => {
+  //   const selectedCustomer = invoice.customer; // agar invoice me customer object hai
+  //   const rowsWithNames = invoice.rows;        // invoice ke products
+  //   const totals = invoice.totals;
+  //   const paidAmount = invoice.paidAmount;
+  //   const balanceAmount = invoice.balanceAmount;
+  //   // const closingBalance = invoice.closingBalance;
+  //   const invoiceInfo = invoice.invoiceNo;
+  //    const subtotal = totals?.totalAmount || 0;
+  // const openingBalance = invoice.openingBalance !== undefined
+  //   ? invoice.openingBalance
+  //   : selectedCustomer?.closing_balance || 0; // fallback
+
+  // const closingBalance = openingBalance + subtotal - (paidAmount || 0);
+
+  //   navigate(`/show-invoice/${invoice._id}`, {
+  //     state: {
+  //       customer: selectedCustomer,
+  //       customerName: selectedCustomer?.name,
+  //       rows: rowsWithNames,
+  //       totals: totals,
+  //       paidAmount: paidAmount,
+  //       balanceAmount: balanceAmount,
+  //       openingBalance: selectedCustomer?.closing_balance || 0,
+  //       closingBalance: closingBalance,
+  //       invoiceNo: invoiceInfo,
+  //       date: new Date().toLocaleString("en-GB"),
+  //     },
+  //   });
+  // };
+
+  const handleShowInvoice = (invoice) => {
+    const selectedCustomer = invoice.customer; // customer object
+    const rowsWithNames = invoice.rows;        // products
+    const subtotal = invoice.totals?.totalAmount || 0;
+    const paidAmount = invoice.paidAmount || 0;
+
+    // Opening balance = customer's last closing balance or 0
+    const openingBalance = selectedCustomer?.closing_balance || 0;
+
+    // Grand total = opening + subtotal
+    const grandTotal = openingBalance + subtotal;
+
+    // Balance = grand total - paid
+    const balanceAmount = grandTotal - paidAmount;
+
+    // Closing balance = previous closing + subtotal - paid
+    const closingBalance = openingBalance + subtotal - paidAmount;
+
+    navigate(`/show-invoice/${invoice._id}`, {
+      state: {
+        customer: selectedCustomer,
+        customerName: selectedCustomer?.name,
+        rows: rowsWithNames,
+        totals: { totalAmount: subtotal },
+        paidAmount,
+        balanceAmount,
+        openingBalance: selectedCustomer?.closing_balance || 0,
+        closingBalance: closingBalance,
+        invoiceNo: invoice.invoiceNo,
+        date: invoice.date || new Date().toLocaleString("en-GB"),
+      },
+    });
+  };
+
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,7 +106,7 @@ const Invoice = () => {
 
   const fetchInvoices = async (page = 1, limit = 10, search = "") => {
     try {
-          console.log(`API Call: /invoice/all?page=${page}&limit=${limit}&search=${search}`);
+      console.log(`API Call: /invoice/all?page=${page}&limit=${limit}&search=${search}`);
 
       const response = await fetch(
         `http://localhost:4000/api/v1/invoice/all?page=${page}&limit=${limit}&search=${search}`,
@@ -49,7 +115,7 @@ const Invoice = () => {
         }
       )
       const result = await response.json();
-      console.log("Invoice API Response:", result);
+      // console.log("Invoice API Response:", result);
 
       // Agar sirf data array aata hai
       setInvoices(result.data || []);
@@ -105,6 +171,7 @@ const Invoice = () => {
     setCurrentPage(1);
   };
 
+
   return (
     <main>
       <div className="row">
@@ -131,7 +198,8 @@ const Invoice = () => {
                       className="form-control"
                       placeholder="Search invoices..."
                       value={searchTerm}
-                      onChange={(e) =>{ setSearchTerm(e.target.value)
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value)
                         setCurrentPage(1)
                       }}
                     />
@@ -184,8 +252,8 @@ const Invoice = () => {
                               <Link
                                 to={`/show-invoice/${invoice._id}`}
                                 onClick={(e) => {
-                                  e.preventDefault()
-                                  handleShowInvoice(invoice)
+                                  e.preventDefault();       // Link ka default behavior rok do
+                                  handleShowInvoice(invoice);
                                 }}
                                 className="btn btn-sm btn-circle btn-outline-info mr-1"
                                 title="Show"

@@ -1,57 +1,57 @@
 import React, { useEffect } from 'react'
 import "./PrintInvoice.css"
-import { useLocation,useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const PrintInvoice = () => {
-     const navigate = useNavigate();
+    const navigate = useNavigate();
     const location = useLocation();
-    const { customer,customerName, rows, totals, paidAmount, balanceAmount, invoiceNo, date } =
+    const { customer, customerName, rows, totals, paidAmount, balanceAmount, invoiceNo, date, openingBalance, closingBalance } =
         location.state || {};
 
 
-// useEffect(() => {
-//   const mediaQueryList = window.matchMedia('print');
+    // useEffect(() => {
+    //   const mediaQueryList = window.matchMedia('print');
 
-//   const handler = (mql) => {
-//     if (!mql.matches) {
-//       // Jab print dialog close hoga (print ya cancel dono case me)
-//       navigate("/invoices", { replace: true });
-//     }
-//   };
+    //   const handler = (mql) => {
+    //     if (!mql.matches) {
+    //       // Jab print dialog close hoga (print ya cancel dono case me)
+    //       navigate("/invoices", { replace: true });
+    //     }
+    //   };
 
-//   mediaQueryList.addEventListener("change", handler);
+    //   mediaQueryList.addEventListener("change", handler);
 
-//   window.print();
+    //   window.print();
 
-//   return () => {
-//     mediaQueryList.removeEventListener("change", handler);
-//   };
-// }, [navigate]);
+    //   return () => {
+    //     mediaQueryList.removeEventListener("change", handler);
+    //   };
+    // }, [navigate]);
 
-useEffect(() => {
-  let fallbackTimer;
+    useEffect(() => {
+        let fallbackTimer;
 
-  const handleAfterPrint = () => {
-    clearTimeout(fallbackTimer);
-    navigate("/invoices", { replace: true });
-  };
+        const handleAfterPrint = () => {
+            clearTimeout(fallbackTimer);
+            navigate("/invoices", { replace: true });
+        };
 
-  // Browser support kare to chalega
-  window.onafterprint = handleAfterPrint;
+        // Browser support kare to chalega
+        window.onafterprint = handleAfterPrint;
 
-  // Fallback timer (agar onafterprint fire na ho)
-  fallbackTimer = setTimeout(() => {
-    navigate("/invoices", { replace: true });
-  }, 800); // thoda chhota bhi kar sakte ho (500ms)
+        // Fallback timer (agar onafterprint fire na ho)
+        fallbackTimer = setTimeout(() => {
+            navigate("/invoices", { replace: true });
+        }, 800); // thoda chhota bhi kar sakte ho (500ms)
 
-  // Print dialog open karo
-  window.print();
+        // Print dialog open karo
+        window.print();
 
-  return () => {
-    clearTimeout(fallbackTimer);
-    window.onafterprint = null;
-  };
-}, [navigate]);
+        return () => {
+            clearTimeout(fallbackTimer);
+            window.onafterprint = null;
+        };
+    }, [navigate]);
 
 
     return (
@@ -70,7 +70,7 @@ useEffect(() => {
                     <div className="billing-section">
                         <div className="section-title">Bill To</div>
                         <div className="client-details">
-                            <div>{customerName|| "Cash Sale"}</div>
+                            <div>{customerName || "Cash Sale"}</div>
                             <div>{customer?.address || ""}</div>
                             <div>{customer?.mobile || ""}</div>
                         </div>
@@ -114,7 +114,7 @@ useEffect(() => {
 
                     </tbody>
                 </table>
-                <div className="summary-section">
+                {/* <div className="summary-section">
                     <div className="summary-row">
                         <div className="summary-label">Subtotal</div>
                         <div className="summary-value">{totals?.totalAmount}</div>
@@ -127,15 +127,33 @@ useEffect(() => {
                         <div className="summary-label">Subtotal Less Discount</div>
                         <div className="summary-value">{totals?.grossTotal}</div>
                     </div> */}
-                </div>
-                
+                {/* </div> */}
+
                 <div className="balance-details">
-                    <div>Paid Amount ₹</div>
-                    <div>{paidAmount}</div>
+                   <div className>Subtotal</div>
+                        <div>₹ {totals?.totalAmount}</div>
+                </div>
+
+
+                <div className="balance-details">
+                    <div>Opening Balance </div>
+                    <div>₹ {openingBalance}</div>
                 </div>
                 <div className="balance-details">
-                    <div>Balance ₹</div>
-                    <div>{balanceAmount}</div>
+                    <div>Grand Total</div>
+                    <div>₹ {(totals?.totalAmount || 0) + (openingBalance || 0)}</div>
+                </div>
+                <div className="balance-details">
+                    <div>Paid Amount </div>
+                    <div>₹ {paidAmount ||0}</div>
+                </div>
+                <div className="balance-details">
+                    <div>Balance </div>
+                    <div>₹ {balanceAmount}</div>
+                </div>
+                <div className="balance-details">
+                    <div>Closing Balance ₹</div>
+                    <div>₹ {closingBalance}</div>
                 </div>
                 {/* <div className="greeting">
                     हमारे साथ खरीदारी करने के लिए आप का बहुत बहुत धन्यवाद

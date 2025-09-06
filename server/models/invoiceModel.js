@@ -26,6 +26,8 @@ customer: {
     totalAmount: Number,
     totalDiscount: Number,
     grossTotal: Number,
+    openingBalance: Number,
+    closingBalance: Number,
   },
   paidAmount: Number,
   balanceAmount: Number,

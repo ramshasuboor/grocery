@@ -9,6 +9,8 @@ const Invoice = () => {
     const navigate = useNavigate();
     const [invoiceNo, setInvoiceNo] = useState("");
     const [isRowAdded, setIsRowAdded] = useState(false);
+    // const [balanceAmount, setBalanceAmount] = useState(0);
+    const [closingBalance, setClosingBalance] = useState(0);
     const [rows, setRows] = useState([
         { product: "", avgQty: "", quantity: "", mrp: "", discount: "", total: "", unit: "" }
     ]);
@@ -79,8 +81,12 @@ const Invoice = () => {
         const grossTotal = parseFloat(totals.grossTotal) || 0;
         const paid = parseFloat(paidAmount) || 0;
         const balance = grossTotal - paid;
+
+        const openingBalance = selectedCustomer?.closing_balance || 0;
+        const newClosingBalance = openingBalance + balance;
         setBalanceAmount(Number(balance.toFixed(2)));
-    }, [totals.grossTotal, paidAmount]);
+        setClosingBalance(Number(newClosingBalance.toFixed(2)));
+    }, [totals.grossTotal, paidAmount, selectedCustomer]);
     // fecth all customer from database
 
     useEffect(() => {
@@ -132,6 +138,8 @@ const Invoice = () => {
                 totals: totals,
                 paidAmount: paidAmount,
                 balanceAmount: balanceAmount,
+                openingBalance: selectedCustomer?.closing_balance || 0,
+                closingBalance: closingBalance,
                 invoiceNo: invoiceInfo,
                 // date: new Date(),
                 date: new Date().toLocaleString("en-GB"),
@@ -347,6 +355,9 @@ const Invoice = () => {
                 paidAmount: paidAmount,
                 balanceAmount: balanceAmount,
                 invoiceNo: invoiceInfo,
+                openingBalance: selectedCustomer?.closing_balance || 0,
+                // closingBalance: closingBalance,
+                
                 date: new Date().toLocaleDateString(),
             };
             console.log("Selected Customer:", selectedCustomer);
@@ -897,6 +908,10 @@ const Invoice = () => {
                     <div className="total-item">
                         <h6>Balance Amount:</h6>
                         <input type="number" value={balanceAmount || 0} name="balance_amount" id="balance_amount" readOnly />
+                    </div>
+                    <div className="total-item">
+                        <h6>Closing Balance:</h6>
+                        <input type="number" name="closing_blance" value={(selectedCustomer?.closing_balance || 0) + balanceAmount} id="closing_balance" readOnly />
                     </div>
                     <div className="total-item">
                         {/* <button className='btn btn-success mb-4 align-self-start' onClick={handleSave}>Save</button> */}
